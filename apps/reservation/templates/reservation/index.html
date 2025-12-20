@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <button id="list">List</button>
+    <pre id="response"></pre>
+
+<script>
+        const roomName = "{{ username }}";
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAwNTA2NzM5LCJpYXQiOjE3MDA0Mjk2NDgsImp0aSI6IjMzZDIyNDMwYTllZDQ0Y2VhYWNmMDliNzU3NDdlZDg5IiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInVzZXJfZnVsbG5hbWUiOiJOb25lIE5vbmUiLCJ1c2VyX2ltYWdlIjoiIn0.q1nx59mQzpZEChOpGOIsBb8yCai0emEJdUegg5uZjKQ";
+        {% comment %} const chatSocket = new WebSocket(`ws://localhost:8000/ws/reservation_${roomName}/?token=${token}`); {% endcomment %}
+        {% comment %} const chatSocket = new WebSocket(`wss://sadaf-back.feedback.uz/ws/reservation_${roomName}/?token=${token}`); {% endcomment %}
+        const chatSocket = new WebSocket(`wss://api.sadaf-clinic.uz/ws/reservation_${roomName}/?token=${token}`);
+
+        chatSocket.onmessage = function (e) {
+        document.getElementById("response").textContent = JSON.stringify(
+            JSON.parse(e.data),
+            undefined,
+            2
+            );
+            console.log(e.data);
+            };
+
+        document.querySelector("#list").onclick = function (e) {
+          console.log("List button clicked");
+          const event = {
+            type: "list_reservation",
+            room_group_name: `reservation_${roomName}`,
+          };
+
+          console.log("Sending message:", event);
+          chatSocket.send(JSON.stringify(event));
+        };
+        
+        chatSocket.onerror = function (error) {
+          console.error('WebSocket Error: ', error);
+        };
+
+        chatSocket.onclose = function (event) {
+          if (event.wasClean) {
+            console.log(`WebSocket closed cleanly, code=${event.code}, reason=${event.reason}`);
+          } else {
+            console.error('WebSocket connection died');
+          }
+        };
+
+        chatSocket.addEventListener("message", ({ data }) => {
+          const event = JSON.parse(data);
+            console.log(event.data);
+        });
+
+</script>
+
+
+</body>
+</html>

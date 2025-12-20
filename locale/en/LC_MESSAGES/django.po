@@ -1,0 +1,1128 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-25 14:14+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/core/api/mixins.py:47
+msgid "Field with such value already exists: {}."
+msgstr ""
+
+#: apps/core/choices.py:6
+msgid "Give credit"
+msgstr ""
+
+#: apps/core/choices.py:7
+msgid "Paid credit"
+msgstr ""
+
+#: apps/core/choices.py:8
+msgid "Vip credit"
+msgstr ""
+
+#: apps/core/choices.py:9
+msgid "Partially paid credit"
+msgstr ""
+
+#: apps/core/choices.py:10
+msgid "Forgiven credit"
+msgstr ""
+
+#: apps/core/choices.py:11
+msgid "Payment for medical card action"
+msgstr ""
+
+#: apps/core/choices.py:12
+msgid "Partial payment for medical card action"
+msgstr ""
+
+#: apps/core/choices.py:13
+msgid "Refilled client balance"
+msgstr ""
+
+#: apps/core/choices.py:14
+msgid "Refunded client balance"
+msgstr ""
+
+#: apps/core/choices.py:18
+msgid "Cash"
+msgstr ""
+
+#: apps/core/choices.py:19
+msgid "Online transfer"
+msgstr ""
+
+#: apps/core/choices.py:20
+msgid "Card"
+msgstr ""
+
+#: apps/core/choices.py:21
+msgid "Another"
+msgstr ""
+
+#: apps/core/choices.py:27
+msgid "No"
+msgstr ""
+
+#: apps/core/choices.py:31
+msgid "Male"
+msgstr ""
+
+#: apps/core/choices.py:32
+msgid "Female"
+msgstr ""
+
+#: apps/core/choices.py:36
+msgid "Draft"
+msgstr ""
+
+#: apps/core/choices.py:37
+msgid "Approved"
+msgstr ""
+
+#: apps/core/choices.py:38
+msgid "Cancelled"
+msgstr ""
+
+#: apps/core/choices.py:39
+msgid "Approved by patient"
+msgstr ""
+
+#: apps/core/choices.py:40
+msgid "Cancelled by patient"
+msgstr ""
+
+#: apps/core/choices.py:45
+msgid "Basic"
+msgstr ""
+
+#: apps/core/countries.py:4
+msgid "Andorra"
+msgstr ""
+
+#: apps/core/countries.py:5
+msgid "United Arab Emirates"
+msgstr ""
+
+#: apps/core/countries.py:6
+msgid "Afghanistan"
+msgstr ""
+
+#: apps/core/countries.py:7
+msgid "Antigua & Barbuda"
+msgstr ""
+
+#: apps/core/countries.py:8
+msgid "Anguilla"
+msgstr ""
+
+#: apps/core/countries.py:9
+msgid "Albania"
+msgstr ""
+
+#: apps/core/countries.py:10
+msgid "Armenia"
+msgstr ""
+
+#: apps/core/countries.py:11
+msgid "Netherlands Antilles"
+msgstr ""
+
+#: apps/core/countries.py:12
+msgid "Angola"
+msgstr ""
+
+#: apps/core/countries.py:13
+msgid "Antarctica"
+msgstr ""
+
+#: apps/core/countries.py:14
+msgid "Argentina"
+msgstr ""
+
+#: apps/core/countries.py:15
+msgid "American Samoa"
+msgstr ""
+
+#: apps/core/countries.py:16
+msgid "Austria"
+msgstr ""
+
+#: apps/core/countries.py:17
+msgid "Australia"
+msgstr ""
+
+#: apps/core/countries.py:18
+msgid "Aruba"
+msgstr ""
+
+#: apps/core/countries.py:19
+msgid "Azerbaijan"
+msgstr ""
+
+#: apps/core/countries.py:20
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+#: apps/core/countries.py:21
+msgid "Barbados"
+msgstr ""
+
+#: apps/core/countries.py:22
+msgid "Bangladesh"
+msgstr ""
+
+#: apps/core/countries.py:23
+msgid "Belgium"
+msgstr ""
+
+#: apps/core/countries.py:24
+msgid "Burkina Faso"
+msgstr ""
+
+#: apps/core/countries.py:25
+msgid "Bulgaria"
+msgstr ""
+
+#: apps/core/countries.py:26
+msgid "Bahrain"
+msgstr ""
+
+#: apps/core/countries.py:27
+msgid "Burundi"
+msgstr ""
+
+#: apps/core/countries.py:28
+msgid "Benin"
+msgstr ""
+
+#: apps/core/countries.py:29
+msgid "Bermuda"
+msgstr ""
+
+#: apps/core/countries.py:30
+msgid "Brunei Darussalam"
+msgstr ""
+
+#: apps/core/countries.py:31
+msgid "Bolivia"
+msgstr ""
+
+#: apps/core/countries.py:32
+msgid "Brazil"
+msgstr ""
+
+#: apps/core/countries.py:33
+msgid "Bahama"
+msgstr ""
+
+#: apps/core/countries.py:34
+msgid "Bhutan"
+msgstr ""
+
+#: apps/core/countries.py:35
+msgid "Bouvet Island"
+msgstr ""
+
+#: apps/core/countries.py:36
+msgid "Botswana"
+msgstr ""
+
+#: apps/core/countries.py:37
+msgid "Belarus"
+msgstr ""
+
+#: apps/core/countries.py:38
+msgid "Belize"
+msgstr ""
+
+#: apps/core/countries.py:39
+msgid "Canada"
+msgstr ""
+
+#: apps/core/countries.py:40
+msgid "Cocos (Keeling) Islands"
+msgstr ""
+
+#: apps/core/countries.py:41
+msgid "Central African Republic"
+msgstr ""
+
+#: apps/core/countries.py:42
+msgid "Congo"
+msgstr ""
+
+#: apps/core/countries.py:43
+msgid "Switzerland"
+msgstr ""
+
+#: apps/core/countries.py:44
+msgid "Ivory Coast"
+msgstr ""
+
+#: apps/core/countries.py:45
+msgid "Cook Iislands"
+msgstr ""
+
+#: apps/core/countries.py:46
+msgid "Chile"
+msgstr ""
+
+#: apps/core/countries.py:47
+msgid "Cameroon"
+msgstr ""
+
+#: apps/core/countries.py:48
+msgid "China"
+msgstr ""
+
+#: apps/core/countries.py:49
+msgid "Colombia"
+msgstr ""
+
+#: apps/core/countries.py:50
+msgid "Costa Rica"
+msgstr ""
+
+#: apps/core/countries.py:51
+msgid "Cuba"
+msgstr ""
+
+#: apps/core/countries.py:52
+msgid "Cape Verde"
+msgstr ""
+
+#: apps/core/countries.py:53
+msgid "Christmas Island"
+msgstr ""
+
+#: apps/core/countries.py:54
+msgid "Cyprus"
+msgstr ""
+
+#: apps/core/countries.py:55
+msgid "Czech Republic"
+msgstr ""
+
+#: apps/core/countries.py:56
+msgid "Germany"
+msgstr ""
+
+#: apps/core/countries.py:57
+msgid "Djibouti"
+msgstr ""
+
+#: apps/core/countries.py:58
+msgid "Denmark"
+msgstr ""
+
+#: apps/core/countries.py:59
+msgid "Dominica"
+msgstr ""
+
+#: apps/core/countries.py:60
+msgid "Dominican Republic"
+msgstr ""
+
+#: apps/core/countries.py:61
+msgid "Algeria"
+msgstr ""
+
+#: apps/core/countries.py:62
+msgid "Ecuador"
+msgstr ""
+
+#: apps/core/countries.py:63
+msgid "Estonia"
+msgstr ""
+
+#: apps/core/countries.py:64
+msgid "Egypt"
+msgstr ""
+
+#: apps/core/countries.py:65
+msgid "Western Sahara"
+msgstr ""
+
+#: apps/core/countries.py:66
+msgid "Eritrea"
+msgstr ""
+
+#: apps/core/countries.py:67
+msgid "Spain"
+msgstr ""
+
+#: apps/core/countries.py:68
+msgid "Ethiopia"
+msgstr ""
+
+#: apps/core/countries.py:69
+msgid "Finland"
+msgstr ""
+
+#: apps/core/countries.py:70
+msgid "Fiji"
+msgstr ""
+
+#: apps/core/countries.py:71
+msgid "Falkland Islands (Malvinas)"
+msgstr ""
+
+#: apps/core/countries.py:72
+msgid "Micronesia"
+msgstr ""
+
+#: apps/core/countries.py:73
+msgid "Faroe Islands"
+msgstr ""
+
+#: apps/core/countries.py:74
+msgid "France"
+msgstr ""
+
+#: apps/core/countries.py:75
+msgid "France, Metropolitan"
+msgstr ""
+
+#: apps/core/countries.py:76
+msgid "Gabon"
+msgstr ""
+
+#: apps/core/countries.py:77
+msgid "United Kingdom (Great Britain)"
+msgstr ""
+
+#: apps/core/countries.py:78
+msgid "Grenada"
+msgstr ""
+
+#: apps/core/countries.py:79
+msgid "Georgia"
+msgstr ""
+
+#: apps/core/countries.py:80
+msgid "French Guiana"
+msgstr ""
+
+#: apps/core/countries.py:81
+msgid "Ghana"
+msgstr ""
+
+#: apps/core/countries.py:82
+msgid "Gibraltar"
+msgstr ""
+
+#: apps/core/countries.py:83
+msgid "Greenland"
+msgstr ""
+
+#: apps/core/countries.py:84
+msgid "Gambia"
+msgstr ""
+
+#: apps/core/countries.py:85
+msgid "Guinea"
+msgstr ""
+
+#: apps/core/countries.py:86
+msgid "Guadeloupe"
+msgstr ""
+
+#: apps/core/countries.py:87
+msgid "Equatorial Guinea"
+msgstr ""
+
+#: apps/core/countries.py:88
+msgid "Greece"
+msgstr ""
+
+#: apps/core/countries.py:89
+msgid "South Georgia and the South Sandwich Islands"
+msgstr ""
+
+#: apps/core/countries.py:90
+msgid "Guatemala"
+msgstr ""
+
+#: apps/core/countries.py:91
+msgid "Guam"
+msgstr ""
+
+#: apps/core/countries.py:92
+msgid "Guinea-Bissau"
+msgstr ""
+
+#: apps/core/countries.py:93
+msgid "Guyana"
+msgstr ""
+
+#: apps/core/countries.py:94
+msgid "Hong Kong"
+msgstr ""
+
+#: apps/core/countries.py:95
+msgid "Heard & McDonald Islands"
+msgstr ""
+
+#: apps/core/countries.py:96
+msgid "Honduras"
+msgstr ""
+
+#: apps/core/countries.py:97
+msgid "Croatia"
+msgstr ""
+
+#: apps/core/countries.py:98
+msgid "Haiti"
+msgstr ""
+
+#: apps/core/countries.py:99
+msgid "Hungary"
+msgstr ""
+
+#: apps/core/countries.py:100
+msgid "Indonesia"
+msgstr ""
+
+#: apps/core/countries.py:101
+msgid "Ireland"
+msgstr ""
+
+#: apps/core/countries.py:102
+msgid "Israel"
+msgstr ""
+
+#: apps/core/countries.py:103
+msgid "India"
+msgstr ""
+
+#: apps/core/countries.py:104
+msgid "British Indian Ocean Territory"
+msgstr ""
+
+#: apps/core/countries.py:105
+msgid "Iraq"
+msgstr ""
+
+#: apps/core/countries.py:106
+msgid "Islamic Republic of Iran"
+msgstr ""
+
+#: apps/core/countries.py:107
+msgid "Iceland"
+msgstr ""
+
+#: apps/core/countries.py:108
+msgid "Italy"
+msgstr ""
+
+#: apps/core/countries.py:109
+msgid "Jamaica"
+msgstr ""
+
+#: apps/core/countries.py:110
+msgid "Jordan"
+msgstr ""
+
+#: apps/core/countries.py:111
+msgid "Japan"
+msgstr ""
+
+#: apps/core/countries.py:112
+msgid "Kenya"
+msgstr ""
+
+#: apps/core/countries.py:113
+msgid "Kyrgyzstan"
+msgstr ""
+
+#: apps/core/countries.py:114
+msgid "Cambodia"
+msgstr ""
+
+#: apps/core/countries.py:115
+msgid "Kiribati"
+msgstr ""
+
+#: apps/core/countries.py:116
+msgid "Comoros"
+msgstr ""
+
+#: apps/core/countries.py:117
+msgid "St. Kitts and Nevis"
+msgstr ""
+
+#: apps/core/countries.py:118
+msgid "Korea, Democratic People's Republic of"
+msgstr ""
+
+#: apps/core/countries.py:119
+msgid "Korea, Republic of"
+msgstr ""
+
+#: apps/core/countries.py:120
+msgid "Kuwait"
+msgstr ""
+
+#: apps/core/countries.py:121
+msgid "Cayman Islands"
+msgstr ""
+
+#: apps/core/countries.py:122
+msgid "Kazakhstan"
+msgstr ""
+
+#: apps/core/countries.py:123
+msgid "Lao People's Democratic Republic"
+msgstr ""
+
+#: apps/core/countries.py:124
+msgid "Lebanon"
+msgstr ""
+
+#: apps/core/countries.py:125
+msgid "Saint Lucia"
+msgstr ""
+
+#: apps/core/countries.py:126
+msgid "Liechtenstein"
+msgstr ""
+
+#: apps/core/countries.py:127
+msgid "Sri Lanka"
+msgstr ""
+
+#: apps/core/countries.py:128
+msgid "Liberia"
+msgstr ""
+
+#: apps/core/countries.py:129
+msgid "Lesotho"
+msgstr ""
+
+#: apps/core/countries.py:130
+msgid "Lithuania"
+msgstr ""
+
+#: apps/core/countries.py:131
+msgid "Luxembourg"
+msgstr ""
+
+#: apps/core/countries.py:132
+msgid "Latvia"
+msgstr ""
+
+#: apps/core/countries.py:133
+msgid "Libyan Arab Jamahiriya"
+msgstr ""
+
+#: apps/core/countries.py:134
+msgid "Morocco"
+msgstr ""
+
+#: apps/core/countries.py:135
+msgid "Monaco"
+msgstr ""
+
+#: apps/core/countries.py:136
+msgid "Moldova, Republic of"
+msgstr ""
+
+#: apps/core/countries.py:137
+msgid "Madagascar"
+msgstr ""
+
+#: apps/core/countries.py:138
+msgid "Marshall Islands"
+msgstr ""
+
+#: apps/core/countries.py:139
+msgid "Mali"
+msgstr ""
+
+#: apps/core/countries.py:140
+msgid "Mongolia"
+msgstr ""
+
+#: apps/core/countries.py:141
+msgid "Myanmar"
+msgstr ""
+
+#: apps/core/countries.py:142
+msgid "Macau"
+msgstr ""
+
+#: apps/core/countries.py:143
+msgid "Northern Mariana Islands"
+msgstr ""
+
+#: apps/core/countries.py:144
+msgid "Martinique"
+msgstr ""
+
+#: apps/core/countries.py:145
+msgid "Mauritania"
+msgstr ""
+
+#: apps/core/countries.py:146
+msgid "Monserrat"
+msgstr ""
+
+#: apps/core/countries.py:147
+msgid "Malta"
+msgstr ""
+
+#: apps/core/countries.py:148
+msgid "Mauritius"
+msgstr ""
+
+#: apps/core/countries.py:149
+msgid "Maldives"
+msgstr ""
+
+#: apps/core/countries.py:150
+msgid "Malawi"
+msgstr ""
+
+#: apps/core/countries.py:151
+msgid "Mexico"
+msgstr ""
+
+#: apps/core/countries.py:152
+msgid "Malaysia"
+msgstr ""
+
+#: apps/core/countries.py:153
+msgid "Mozambique"
+msgstr ""
+
+#: apps/core/countries.py:154
+msgid "Namibia"
+msgstr ""
+
+#: apps/core/countries.py:155
+msgid "New Caledonia"
+msgstr ""
+
+#: apps/core/countries.py:156
+msgid "Niger"
+msgstr ""
+
+#: apps/core/countries.py:157
+msgid "Norfolk Island"
+msgstr ""
+
+#: apps/core/countries.py:158
+msgid "Nigeria"
+msgstr ""
+
+#: apps/core/countries.py:159
+msgid "Nicaragua"
+msgstr ""
+
+#: apps/core/countries.py:160
+msgid "Netherlands"
+msgstr ""
+
+#: apps/core/countries.py:161
+msgid "Norway"
+msgstr ""
+
+#: apps/core/countries.py:162
+msgid "Nepal"
+msgstr ""
+
+#: apps/core/countries.py:163
+msgid "Nauru"
+msgstr ""
+
+#: apps/core/countries.py:164
+msgid "Niue"
+msgstr ""
+
+#: apps/core/countries.py:165
+msgid "New Zealand"
+msgstr ""
+
+#: apps/core/countries.py:166
+msgid "Oman"
+msgstr ""
+
+#: apps/core/countries.py:167
+msgid "Panama"
+msgstr ""
+
+#: apps/core/countries.py:168
+msgid "Peru"
+msgstr ""
+
+#: apps/core/countries.py:169
+msgid "French Polynesia"
+msgstr ""
+
+#: apps/core/countries.py:170
+msgid "Papua New Guinea"
+msgstr ""
+
+#: apps/core/countries.py:171
+msgid "Philippines"
+msgstr ""
+
+#: apps/core/countries.py:172
+msgid "Pakistan"
+msgstr ""
+
+#: apps/core/countries.py:173
+msgid "Poland"
+msgstr ""
+
+#: apps/core/countries.py:174
+msgid "St. Pierre & Miquelon"
+msgstr ""
+
+#: apps/core/countries.py:175
+msgid "Pitcairn"
+msgstr ""
+
+#: apps/core/countries.py:176
+msgid "Puerto Rico"
+msgstr ""
+
+#: apps/core/countries.py:177
+msgid "Portugal"
+msgstr ""
+
+#: apps/core/countries.py:178
+msgid "Palau"
+msgstr ""
+
+#: apps/core/countries.py:179
+msgid "Paraguay"
+msgstr ""
+
+#: apps/core/countries.py:180
+msgid "Qatar"
+msgstr ""
+
+#: apps/core/countries.py:181
+msgid "Reunion"
+msgstr ""
+
+#: apps/core/countries.py:182
+msgid "Romania"
+msgstr ""
+
+#: apps/core/countries.py:183
+msgid "Russian Federation"
+msgstr ""
+
+#: apps/core/countries.py:184
+msgid "Rwanda"
+msgstr ""
+
+#: apps/core/countries.py:185
+msgid "Saudi Arabia"
+msgstr ""
+
+#: apps/core/countries.py:186
+msgid "Solomon Islands"
+msgstr ""
+
+#: apps/core/countries.py:187
+msgid "Seychelles"
+msgstr ""
+
+#: apps/core/countries.py:188
+msgid "Sudan"
+msgstr ""
+
+#: apps/core/countries.py:189
+msgid "Sweden"
+msgstr ""
+
+#: apps/core/countries.py:190
+msgid "Singapore"
+msgstr ""
+
+#: apps/core/countries.py:191
+msgid "St. Helena"
+msgstr ""
+
+#: apps/core/countries.py:192
+msgid "Slovenia"
+msgstr ""
+
+#: apps/core/countries.py:193
+msgid "Svalbard & Jan Mayen Islands"
+msgstr ""
+
+#: apps/core/countries.py:194
+msgid "Slovakia"
+msgstr ""
+
+#: apps/core/countries.py:195
+msgid "Sierra Leone"
+msgstr ""
+
+#: apps/core/countries.py:196
+msgid "San Marino"
+msgstr ""
+
+#: apps/core/countries.py:197
+msgid "Senegal"
+msgstr ""
+
+#: apps/core/countries.py:198
+msgid "Somalia"
+msgstr ""
+
+#: apps/core/countries.py:199
+msgid "Suriname"
+msgstr ""
+
+#: apps/core/countries.py:200
+msgid "Sao Tome & Principe"
+msgstr ""
+
+#: apps/core/countries.py:201
+msgid "El Salvador"
+msgstr ""
+
+#: apps/core/countries.py:202
+msgid "Syrian Arab Republic"
+msgstr ""
+
+#: apps/core/countries.py:203
+msgid "Swaziland"
+msgstr ""
+
+#: apps/core/countries.py:204
+msgid "Turks & Caicos Islands"
+msgstr ""
+
+#: apps/core/countries.py:205
+msgid "Chad"
+msgstr ""
+
+#: apps/core/countries.py:206
+msgid "French Southern Territories"
+msgstr ""
+
+#: apps/core/countries.py:207
+msgid "Togo"
+msgstr ""
+
+#: apps/core/countries.py:208
+msgid "Thailand"
+msgstr ""
+
+#: apps/core/countries.py:209
+msgid "Tajikistan"
+msgstr ""
+
+#: apps/core/countries.py:210
+msgid "Tokelau"
+msgstr ""
+
+#: apps/core/countries.py:211
+msgid "Turkmenistan"
+msgstr ""
+
+#: apps/core/countries.py:212
+msgid "Tunisia"
+msgstr ""
+
+#: apps/core/countries.py:213
+msgid "Tonga"
+msgstr ""
+
+#: apps/core/countries.py:214
+msgid "East Timor"
+msgstr ""
+
+#: apps/core/countries.py:215
+msgid "Turkey"
+msgstr ""
+
+#: apps/core/countries.py:216
+msgid "Trinidad & Tobago"
+msgstr ""
+
+#: apps/core/countries.py:217
+msgid "Tuvalu"
+msgstr ""
+
+#: apps/core/countries.py:218
+msgid "Taiwan, Province of China"
+msgstr ""
+
+#: apps/core/countries.py:219
+msgid "Tanzania, United Republic of"
+msgstr ""
+
+#: apps/core/countries.py:220
+msgid "Ukraine"
+msgstr ""
+
+#: apps/core/countries.py:221
+msgid "Uganda"
+msgstr ""
+
+#: apps/core/countries.py:222
+msgid "United States Minor Outlying Islands"
+msgstr ""
+
+#: apps/core/countries.py:223
+msgid "United States of America"
+msgstr ""
+
+#: apps/core/countries.py:224
+msgid "Uruguay"
+msgstr ""
+
+#: apps/core/countries.py:225
+msgid "Uzbekistan"
+msgstr ""
+
+#: apps/core/countries.py:226
+msgid "Vatican City State (Holy See)"
+msgstr ""
+
+#: apps/core/countries.py:227
+msgid "St. Vincent & the Grenadines"
+msgstr ""
+
+#: apps/core/countries.py:228
+msgid "Venezuela"
+msgstr ""
+
+#: apps/core/countries.py:229
+msgid "British Virgin Islands"
+msgstr ""
+
+#: apps/core/countries.py:230
+msgid "United States Virgin Islands"
+msgstr ""
+
+#: apps/core/countries.py:231
+msgid "Viet Nam"
+msgstr ""
+
+#: apps/core/countries.py:232
+msgid "Vanuatu"
+msgstr ""
+
+#: apps/core/countries.py:233
+msgid "Wallis & Futuna Islands"
+msgstr ""
+
+#: apps/core/countries.py:234
+msgid "Samoa"
+msgstr ""
+
+#: apps/core/countries.py:235
+msgid "Yemen"
+msgstr ""
+
+#: apps/core/countries.py:236
+msgid "Mayotte"
+msgstr ""
+
+#: apps/core/countries.py:237
+msgid "Yugoslavia"
+msgstr ""
+
+#: apps/core/countries.py:238
+msgid "South Africa"
+msgstr ""
+
+#: apps/core/countries.py:239
+msgid "Zambia"
+msgstr ""
+
+#: apps/core/countries.py:240
+msgid "Zaire"
+msgstr ""
+
+#: apps/core/countries.py:241
+msgid "Zimbabwe"
+msgstr ""
+
+#: apps/core/countries.py:242
+msgid "Unknown or unspecified country"
+msgstr ""
+
+#: apps/core/exceptions.py:18
+msgid "Unique constraint violation."
+msgstr ""
+
+#: apps/core/exceptions.py:55
+msgid "A database error occurred, please try again later."
+msgstr ""
+
+#: apps/reservation/api/reservations/serializers.py:58
+#: apps/reservation/api/reservations/serializers.py:204
+#, python-brace-format
+msgid "User with id: {current_user.pk} does not have user type"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:181
+#: apps/transaction/api/serializers.py:231
+#: apps/transaction/api/serializers.py:290
+#: apps/transaction/api/serializers.py:383
+#, python-brace-format
+msgid "Client with id: {client_instance.pk} does not have enough balance"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:287
+msgid "Credit is already paid"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:293
+#, python-brace-format
+msgid ""
+"Maximum transaction sum for this credit is {credit_instance.credit_price}"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:378
+#, python-brace-format
+msgid "Client with id: {client_instance.pk} does not have unpaid credits"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:456
+#: apps/transaction/api/serializers.py:582
+msgid "Permission denied!"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:467
+#: apps/transaction/api/serializers.py:470
+#: apps/transaction/api/serializers.py:590
+#: apps/transaction/api/serializers.py:593
+msgid "Medical card is already paid"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:596
+msgid "Medical card is already credited"
+msgstr ""
+
+#: apps/user/admin.py:44
+msgid "Personal info"
+msgstr ""
+
+#: apps/user/admin.py:50
+msgid "Permissions"
+msgstr ""

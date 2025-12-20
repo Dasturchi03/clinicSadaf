@@ -1,0 +1,574 @@
+[
+  {
+    "model": "medcard.tooth",
+    "pk": 1,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "18",
+      "tooth_image": "teeth/18.png",
+      "updated_at": "2023-04-13T14:41:22.948",
+      "created_at": "2022-11-16T16:18:12.704"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 2,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "17",
+      "tooth_image": "teeth/17.png",
+      "updated_at": "2023-04-13T14:41:03.296",
+      "created_at": "2022-11-16T16:19:05.485"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 3,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "16",
+      "tooth_image": "teeth/16.png",
+      "updated_at": "2023-04-13T14:40:37.750",
+      "created_at": "2022-11-16T16:19:16.767"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 4,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "15",
+      "tooth_image": "teeth/15.png",
+      "updated_at": "2023-04-13T14:39:41.845",
+      "created_at": "2022-11-16T16:19:29.274"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 5,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "14",
+      "tooth_image": "teeth/14.png",
+      "updated_at": "2023-04-13T14:39:18.947",
+      "created_at": "2022-11-16T16:19:37.645"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 6,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "13",
+      "tooth_image": "teeth/13.png",
+      "updated_at": "2023-04-13T14:38:11.810",
+      "created_at": "2022-11-16T16:19:48.051"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 7,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "12",
+      "tooth_image": "teeth/12.png",
+      "updated_at": "2023-04-13T14:35:00.210",
+      "created_at": "2022-11-16T16:19:59.754"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 8,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "11",
+      "tooth_image": "teeth/11.png",
+      "updated_at": "2023-04-13T14:34:27.111",
+      "created_at": "2022-11-16T16:20:07.952"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 9,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "21",
+      "tooth_image": "teeth/21.png",
+      "updated_at": "2023-04-13T14:42:07.182",
+      "created_at": "2022-11-16T16:20:19.963"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 10,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "22",
+      "tooth_image": "teeth/22.png",
+      "updated_at": "2023-04-13T14:42:20.759",
+      "created_at": "2022-11-16T16:20:30.221"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 11,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "23",
+      "tooth_image": "teeth/23.png",
+      "updated_at": "2023-04-13T14:42:45.036",
+      "created_at": "2022-11-16T16:20:54.657"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 12,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "24",
+      "tooth_image": "teeth/24.png",
+      "updated_at": "2023-04-13T14:43:05.885",
+      "created_at": "2022-11-16T16:21:18.975"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 13,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "25",
+      "tooth_image": "teeth/25.png",
+      "updated_at": "2023-04-13T14:43:19.543",
+      "created_at": "2022-11-16T16:21:32.260"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 14,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "26",
+      "tooth_image": "teeth/26.png",
+      "updated_at": "2023-04-13T14:43:43.524",
+      "created_at": "2022-11-16T16:21:42.718"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 15,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "27",
+      "tooth_image": "teeth/27.png",
+      "updated_at": "2023-04-13T14:44:04.658",
+      "created_at": "2022-11-16T16:21:52.160"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 16,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "28",
+      "tooth_image": "teeth/28.png",
+      "updated_at": "2023-04-13T14:44:24.313",
+      "created_at": "2022-11-16T16:22:03.069"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 17,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "48",
+      "tooth_image": "teeth/48.png",
+      "updated_at": "2023-04-13T14:47:00.618",
+      "created_at": "2022-11-16T16:22:17.613"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 18,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "47",
+      "tooth_image": "teeth/47.png",
+      "updated_at": "2023-04-13T14:46:56.051",
+      "created_at": "2022-11-16T16:22:26.673"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 19,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "46",
+      "tooth_image": "teeth/46.png",
+      "updated_at": "2023-04-13T14:46:29.653",
+      "created_at": "2022-11-16T16:22:36.256"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 20,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "45",
+      "tooth_image": "teeth/45.png",
+      "updated_at": "2023-04-13T15:44:34.185",
+      "created_at": "2022-11-16T16:22:46.838"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 21,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "44",
+      "tooth_image": "teeth/44.png",
+      "updated_at": "2023-04-13T15:44:26.343",
+      "created_at": "2022-11-16T16:22:58.050"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 22,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "43",
+      "tooth_image": "teeth/43.png",
+      "updated_at": "2023-04-13T14:45:32.654",
+      "created_at": "2022-11-16T16:23:09.370"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 23,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "42",
+      "tooth_image": "teeth/42.png",
+      "updated_at": "2023-04-13T14:45:01.886",
+      "created_at": "2022-11-16T16:23:18.169"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 24,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "41",
+      "tooth_image": "teeth/41.png",
+      "updated_at": "2023-04-13T14:44:45.083",
+      "created_at": "2022-11-16T16:23:27.432"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 25,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "31",
+      "tooth_image": "teeth/31.png",
+      "updated_at": "2023-04-13T14:47:20.213",
+      "created_at": "2022-11-16T16:23:37.769"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 26,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "32",
+      "tooth_image": "teeth/32.png",
+      "updated_at": "2023-04-13T14:47:57.645",
+      "created_at": "2022-11-16T16:23:51.068"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 27,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "33",
+      "tooth_image": "teeth/33.png",
+      "updated_at": "2023-04-13T14:47:46.454",
+      "created_at": "2022-11-16T16:24:01.739"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 28,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "34",
+      "tooth_image": "teeth/34.png",
+      "updated_at": "2023-04-13T14:48:29.543",
+      "created_at": "2022-11-16T16:24:14.664"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 29,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "35",
+      "tooth_image": "teeth/35.png",
+      "updated_at": "2023-04-13T14:48:40.033",
+      "created_at": "2022-11-16T16:24:27.445"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 30,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "36",
+      "tooth_image": "teeth/36.png",
+      "updated_at": "2023-04-13T14:48:56.655",
+      "created_at": "2022-11-16T16:24:38.172"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 31,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "37",
+      "tooth_image": "teeth/37.png",
+      "updated_at": "2023-04-13T14:49:11.917",
+      "created_at": "2022-11-16T16:24:49.786"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 32,
+    "fields": {
+      "tooth_type": "Adult",
+      "tooth_number": "38",
+      "tooth_image": "teeth/38.png",
+      "updated_at": "2023-04-13T14:49:47.905",
+      "created_at": "2022-11-16T16:24:59.855"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 33,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "55",
+      "tooth_image": "teeth/55.png",
+      "updated_at": "2023-04-13T14:15:59.124",
+      "created_at": "2022-11-16T16:28:30.318"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 34,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "54",
+      "tooth_image": "teeth/54.png",
+      "updated_at": "2023-04-13T14:15:37.493",
+      "created_at": "2022-11-16T16:28:39.868"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 35,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "53",
+      "tooth_image": "teeth/53.png",
+      "updated_at": "2023-04-13T14:15:22.865",
+      "created_at": "2022-11-16T16:28:51.656"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 36,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "52",
+      "tooth_image": "teeth/52.png",
+      "updated_at": "2023-04-13T14:15:08.787",
+      "created_at": "2022-11-16T16:28:59.995"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 37,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "51",
+      "tooth_image": "teeth/51.png",
+      "updated_at": "2023-04-13T14:13:37.993",
+      "created_at": "2022-11-16T16:29:10.160"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 38,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "61",
+      "tooth_image": "teeth/61.png",
+      "updated_at": "2023-04-13T14:17:40.668",
+      "created_at": "2022-11-16T16:29:26.162"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 39,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "62",
+      "tooth_image": "teeth/62.png",
+      "updated_at": "2023-04-13T14:18:07.121",
+      "created_at": "2022-11-16T16:29:36.769"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 40,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "63",
+      "tooth_image": "teeth/63.png",
+      "updated_at": "2023-04-13T14:18:39.887",
+      "created_at": "2022-11-16T16:29:48.093"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 41,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "64",
+      "tooth_image": "teeth/64.png",
+      "updated_at": "2023-04-13T14:19:12.382",
+      "created_at": "2022-11-16T16:30:00.358"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 42,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "65",
+      "tooth_image": "teeth/65.png",
+      "updated_at": "2023-04-13T14:19:28.351",
+      "created_at": "2022-11-16T16:30:16.919"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 43,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "85",
+      "tooth_image": "teeth/85.png",
+      "updated_at": "2023-04-13T14:21:16.704",
+      "created_at": "2022-11-16T16:30:35.821"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 44,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "84",
+      "tooth_image": "teeth/84.png",
+      "updated_at": "2023-04-13T14:20:49.552",
+      "created_at": "2022-11-16T16:30:48.359"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 45,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "83",
+      "tooth_image": "teeth/83.png",
+      "updated_at": "2023-04-13T14:20:25.737",
+      "created_at": "2022-11-16T16:30:57.872"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 46,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "82",
+      "tooth_image": "teeth/82.png",
+      "updated_at": "2023-04-13T14:20:08.016",
+      "created_at": "2022-11-16T16:31:13.106"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 47,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "81",
+      "tooth_image": "teeth/81.png",
+      "updated_at": "2023-04-13T14:19:49.628",
+      "created_at": "2022-11-16T16:31:22.630"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 48,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "71",
+      "tooth_image": "teeth/71.png",
+      "updated_at": "2023-04-13T14:21:31.180",
+      "created_at": "2022-11-16T16:31:33.738"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 49,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "72",
+      "tooth_image": "teeth/72.png",
+      "updated_at": "2023-04-13T14:22:58.069",
+      "created_at": "2022-11-16T16:31:43.080"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 50,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "73",
+      "tooth_image": "teeth/73.png",
+      "updated_at": "2023-04-13T14:24:37.537",
+      "created_at": "2022-11-16T16:31:55.251"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 51,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "74",
+      "tooth_image": "teeth/74.png",
+      "updated_at": "2023-04-13T14:25:22.453",
+      "created_at": "2022-11-16T16:32:07.483"
+    }
+  },
+  {
+    "model": "medcard.tooth",
+    "pk": 52,
+    "fields": {
+      "tooth_type": "Child",
+      "tooth_number": "75",
+      "tooth_image": "teeth/75.png",
+      "updated_at": "2023-04-13T14:25:40.794",
+      "created_at": "2022-11-16T16:32:17.452"
+    }
+  }
+]
