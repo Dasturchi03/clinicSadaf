@@ -270,3 +270,4 @@ docker-compose.yml
 Dockerfile
 
 uploads/
+static/
