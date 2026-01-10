@@ -10,6 +10,7 @@ class Category(models.Model):
 
     category_id = models.AutoField(primary_key=True)
     category_title = models.CharField(verbose_name="Название категории", max_length=150)
+    category_icon = models.ImageField(verbose_name="Значок категории", upload_to='categories/')
     updated_at = models.DateTimeField(verbose_name="Обновлён", auto_now=True)
     created_at = models.DateTimeField(verbose_name="Создан", auto_now_add=True)
 

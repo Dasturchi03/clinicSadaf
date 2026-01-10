@@ -1,6 +1,7 @@
 from django.urls import path
-from apps.core.api.router import BaseRouter
+from rest_framework_simplejwt.views import TokenRefreshView
 
+from apps.core.api.router import BaseRouter
 from apps.user.api import views
 
 app_name = 'user'
@@ -12,6 +13,7 @@ urlpatterns = [
     path('users/brief/list', views.UserBriefListView.as_view(), name='user_brief_list'),
     path('users/schedule/list', views.UserSchduleListView.as_view(), name='user_schedule_list'),
     path('users/login/', views.LoginView.as_view(), name='token_obtain_pair'),
+    path('users/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('users/image', views.UserUploadImageView.as_view(), name='upload_image'),
     
     path('users/<int:pk>/permissions', views.UserPermissionList.as_view(), name='users_perms_list'),

@@ -48,6 +48,7 @@ class PrintOutCategoryDetailSerializer(
 class CategorySerializer(serializers.ModelSerializer):
     # Создание категории
     work_category = WorkDetailSerializer(many=True, required=False)
+    category_icon = serializers.ImageField(use_url=True, required=False)
 
     class Meta:
         model = Category
@@ -57,15 +58,18 @@ class CategorySerializer(serializers.ModelSerializer):
             "category_title_ru",
             "category_title_en",
             "category_title_uz",
+            "category_icon",
             "work_category",
         ]
         extra_kwargs = {"category_title": {"read_only": True}}
 
     def create(self, validated_data):
+        category_icon = validated_data.get('category_icon')
         category = Category.objects.create(
             category_title_ru=validated_data["category_title_ru"],
             category_title_en=validated_data["category_title_en"],
             category_title_uz=validated_data["category_title_uz"],
+            category_icon=category_icon
         )
 
         work_category_data = validated_data.pop("work_category", None)
@@ -87,6 +91,9 @@ class CategorySerializer(serializers.ModelSerializer):
         )
         instance.category_title_uz = validated_data.get(
             "category_title_uz", instance.category_title_uz
+        )
+        instance.category_icon = validated_data.get(
+            'category_icon', instance.category_icon
         )
 
         # Обновление работ относящихся к этой категории
