@@ -107,8 +107,8 @@ DATABASES = {
         "NAME": "sadaf",
         "USER": "admin",
         "PASSWORD": "admin",
-        "HOST": "localhost",
-        "PORT": "5433",
+        "HOST": "pgdb",
+        "PORT": "5432",
         "ATOMIC_REQUESTS": True,
     }
 }
