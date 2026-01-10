@@ -40,6 +40,7 @@ urlpatterns += i18n_patterns(
     path("", include("apps.reservation.api.urls", namespace="reservation")),
     path("", include("apps.report.api.urls", namespace="report")),
     path("", include("apps.sms.api.urls", namespace="sms")),
+    path("", include("apps.about.api.urls", namespace="about")),
     prefix_default_language=False,
 )
 
