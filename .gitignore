@@ -268,3 +268,5 @@ logs/*
 /docker/*
 docker-compose.yml
 Dockerfile
+
+uploads/
