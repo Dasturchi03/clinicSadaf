@@ -55,6 +55,13 @@ class ClientTypes(models.TextChoices):
     BASIC = "Basic", _("Basic")
 
 
+class ArticleTypes(models.TextChoices):
+    GENERAL_INFO = "general_info", _("General information")
+    ACHIEVEMENTS = "achievements", _("Our achievements")
+    LABORATORY = "laboratory", _("Laboratory")
+    COMMENTS = "comments", _("Comments")
+
+
 # TRANSACTION_TYPES = (
 #     ("Give credit", "Give credit"),                         # Выдача кредита
 #     ("Paid credit", "Paid credit"),                         # Погашение кредита
