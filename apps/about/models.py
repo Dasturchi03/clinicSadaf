@@ -12,7 +12,7 @@ class Article(BaseModel):
     article_id = models.AutoField(primary_key=True)
     article_type = models.CharField(max_length=50, choices=ArticleTypes.choices, verbose_name="Тип статьи")
     article_title = models.CharField(max_length=255, null=True, blank=True, verbose_name="Заголовок статьи")
-    article_body = models.TextField(null=True, verbose_name="Текст статьи")
+    article_body = models.TextField(null=True, blank=True, verbose_name="Текст статьи")
 
 
 class ArticleImage(BaseModel):
