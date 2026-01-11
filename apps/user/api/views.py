@@ -81,7 +81,6 @@ class UserViewSet(BaseViewSet):
 
 class DoctorsApiView(generics.ListAPIView):
     filterset_class = filtersets.DoctorsFilterSet
-    permission_classes = (AccessPermissions,)
     serializer_class = serializers.DoctorsListSerializer
 
     def get_queryset(self):
