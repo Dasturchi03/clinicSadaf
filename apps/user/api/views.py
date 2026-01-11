@@ -2,8 +2,9 @@ from django.apps import apps
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Prefetch, Q
 from rest_framework import generics, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -76,6 +77,26 @@ class UserViewSet(BaseViewSet):
             return super().filter_queryset(queryset)
 
         return queryset
+
+
+class DoctorsApiView(generics.ListAPIView):
+    filterset_class = filtersets.DoctorsFilterSet
+    permission_classes = (AccessPermissions,)
+    serializer_class = serializers.DoctorsListSerializer
+
+    def get_queryset(self):
+        return (
+            User.objects
+            .select_related("user_type")
+            .prefetch_related("user_public_phone", "user_private_phone", "user_specialization")
+            .only("id", "user_firstname", "user_lastname", "user_type_id", "user_image")
+            .filter(
+                user_is_active=True,
+                archive=False,
+                deleted=False,
+                user_type__type_text='Доктор'
+            )
+        )
 
 
 class UserUploadImageView(GenericAPIView):

@@ -725,6 +725,24 @@ class UserListSerializer(serializers.ModelSerializer):
         ]
 
 
+class DoctorsListSerializer(serializers.ModelSerializer):
+    user_public_phone = UserPublicPhoneSerializer(many=True, required=False)
+    user_private_phone = UserPrivatePhoneSerializer(many=True, required=False)
+    user_specialization = UserSpecializationSerializer(many=True, required=False)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "user_firstname",
+            "user_lastname",
+            "user_public_phone",
+            "user_private_phone",
+            "user_specialization",
+            "user_image"
+        ]
+
+
 class UserBriefListSerializer(serializers.ModelSerializer):
 
     class Meta:

@@ -118,3 +118,27 @@ class UserSalaryFilter(filters.FilterSet):
 
         # Combine both queries with OR condition
         return queryset.filter(name_query | work_title_query)
+
+
+class DoctorsFilterSet(filters.FilterSet):
+    category = filters.CharFilter(
+        method="filter_by_category",
+        help_text="Категория: ID (например, 3) или название (например, 'Терапевт')"
+    )
+
+    def filter_by_category(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        if str(value).isdigit():
+            return queryset.filter(
+                user_specialization__work_specialization__category__category_id=int(value)
+            ).distinct()
+
+        return queryset.filter(
+            user_specialization__work_specialization__category__category_title__iexact=value
+        ).distinct()
+
+    class Meta:
+        model = User
+        fields = ['category']
