@@ -91,7 +91,9 @@ class ArticleOutSerializer(serializers.ModelSerializer):
             "article_type_display",
             "article_title",
             "article_body",
-            "article_images"
+            "article_images",
+            "created_at",
+            "updated_at"
         ]
         extra_kwargs = {
             "article_title": {"read_only": True},
