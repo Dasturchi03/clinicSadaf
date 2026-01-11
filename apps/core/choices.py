@@ -61,6 +61,8 @@ class ArticleTypes(models.TextChoices):
     LABORATORY = "laboratory", _("Laboratory")
     COMMENTS = "comments", _("Comments")
 
+    NEWS = "news", _("News")
+
 
 # TRANSACTION_TYPES = (
 #     ("Give credit", "Give credit"),                         # Выдача кредита
