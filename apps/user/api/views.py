@@ -90,12 +90,7 @@ class DoctorsApiView(generics.ListAPIView):
             .select_related("user_type")
             .prefetch_related("user_public_phone", "user_private_phone", "user_specialization")
             .only("id", "user_firstname", "user_lastname", "user_type_id", "user_image")
-            .filter(
-                user_is_active=True,
-                archive=False,
-                deleted=False,
-                user_type__type_text='Доктор'
-            )
+            .filter(user_type__type_text='Доктор')
         )
 
 
