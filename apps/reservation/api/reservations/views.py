@@ -178,9 +178,14 @@ class ReservationListView(generics.ListAPIView):
 
 class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
     filterset_class = ReservationDoctorsFilter
-    
+
+    def get(self, request, *args, **kwargs):
+        if 'pk' in kwargs:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+
     def get_serializer_class(self):
-        if self.kwargs.get('pk'):
+        if self.kwargs.get('pk', None):
             return serializers.ReservationDoctorsSerializer
         return serializers.ReservationDoctorDetailSerializer
 

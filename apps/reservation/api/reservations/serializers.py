@@ -473,7 +473,7 @@ class ReservationDoctorDetailSerializer(serializers.ModelSerializer):
             return []
 
         try:
-            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            target_date = datetime.strptime(date_str, '%d-%m-%Y').date()
             weekday_num = str(target_date.weekday())
 
             schedule = obj.user_schedule.filter(day__iexact=weekday_num, is_working=True).first()
