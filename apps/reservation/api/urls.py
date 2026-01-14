@@ -5,6 +5,7 @@ from apps.reservation.api.requests.views import ReservationRequestViewSet
 from apps.reservation.api.reservations.views import (
     ReservationListView,
     ReservationViewSet,
+    ReservationDoctorsView,
     index,
 )
 
@@ -41,6 +42,8 @@ urlpatterns = [
         ReservationViewSet.as_view({"patch": "force_update"}),
         name="reservation_instance",
     ),
+    path("reservation/doctors", ReservationDoctorsView.as_view(), name='doctors_list'),
+    path("reservation/doctors/<int:pk>", ReservationDoctorsView.as_view(), name='doctor_detail'),
     path("reservation/<str:username>/", index),
 ]
 

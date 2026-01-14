@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -8,7 +10,7 @@ from apps.client.models import Client
 from apps.medcard.models import Action, MedicalCard, Stage
 from apps.notifications.models import Notification
 from apps.reservation.models import Reservation
-from apps.user.api.serializers import DoctorSerializer
+from apps.user.api.serializers import DoctorSerializer, UserSpecializationSerializer
 from apps.user.models import User
 from apps.work.api.nested_serializers import NestedWorkReservationSerializer
 from apps.work.api.serializers import WorkDetailSerializer
@@ -409,3 +411,114 @@ class ReservationListSerializer(serializers.ModelSerializer):
             "cancelled_by_patient",
             "created_at",
         )
+
+
+class ReservationDoctorsSerializer(serializers.ModelSerializer):
+    user_specialization = UserSpecializationSerializer(many=True, read_only=True)
+    status = serializers.BooleanField()
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "user_firstname",
+            "user_lastname",
+            "user_specialization",
+            "user_image",
+            "status"
+        )
+
+    def get_status(self, obj):
+        request = self.context.get('request')
+        date_str = request.query_params.get('date') if request else None
+
+        if not date_str:
+            raise ValidationError("Дата не выбран")
+
+        try:
+            target_date = datetime.strptime(date_str, '%d-%m-%Y')
+
+            schedule = obj.user_schedule.filter(day__iexact=str(target_date.weekday())).first()
+
+            if schedule and schedule.is_working:
+                return True
+            return False
+
+        except ValueError:
+            return "Ошибка формата даты"
+
+
+class ReservationDoctorDetailSerializer(serializers.ModelSerializer):
+    user_specialization = UserSpecializationSerializer(many=True, read_only=True)
+    available_slots = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "user_firstname",
+            "user_lastname",
+            "user_specialization",
+            "user_image",
+            "available_slots"
+        )
+
+    def get_available_slots(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return []
+            
+        date_str = request.query_params.get('date')
+        if not date_str:
+            return []
+
+        try:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            weekday_num = str(target_date.weekday())
+
+            schedule = obj.user_schedule.filter(day__iexact=weekday_num, is_working=True).first()
+            if not schedule:
+                return []
+
+            booked_reservations = obj.reservations.filter(
+                reservation_date=target_date,
+                cancelled=False
+            ).values('reservation_start_time', 'reservation_end_time')
+
+            slots = []
+            current_dt = datetime.combine(target_date, schedule.work_start_time)
+            end_dt = datetime.combine(target_date, schedule.work_end_time)
+
+            while current_dt < end_dt:
+                slot_start = current_dt.time()
+                next_dt = current_dt + timedelta(hours=1)
+                
+                if next_dt > end_dt:
+                    break
+                    
+                slot_end = next_dt.time()
+
+                is_lunch = False
+                if schedule.lunch_start_time and schedule.lunch_end_time:
+                    if not (slot_start >= schedule.lunch_end_time or slot_end <= schedule.lunch_start_time):
+                        is_lunch = True
+
+                is_booked = any(
+                    res['reservation_start_time'] < slot_end and 
+                    res['reservation_end_time'] > slot_start 
+                    for res in booked_reservations
+                )
+
+                if not is_lunch:
+                    slots.append({
+                        "start": slot_start.strftime("%H:%M"),
+                        "end": slot_end.strftime("%H:%M"),
+                        "is_booked": is_booked
+                    })
+                
+                current_dt = next_dt
+
+            return slots
+
+        except Exception:
+            return []

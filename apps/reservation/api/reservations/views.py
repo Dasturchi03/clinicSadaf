@@ -7,6 +7,7 @@ from rest_framework import generics, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.user.models import User
 from apps.client.models import Client_Public_Phone
 from apps.core.api.serializers import EmptySerializer
 from apps.core.api.views import BaseViewSet
@@ -14,6 +15,7 @@ from apps.core.choices import ReservationRequestStatuses
 from apps.core.permissions import AccessPermissions
 from apps.reservation import filtersets
 from apps.reservation.api.reservations import serializers
+from apps.reservation.filtersets import ReservationDoctorsFilter
 from apps.reservation.models import Reservation
 
 
@@ -77,7 +79,7 @@ class ReservationViewSet(BaseViewSet):
         except Reservation.DoesNotExist:
             data = {"Reservation has already been cancelled"}
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def destroy(self, request, **kwargs):
         instance = self.get_object()
         current_user = request.user
@@ -92,8 +94,8 @@ class ReservationViewSet(BaseViewSet):
 
         self.perform_destroy(instance=instance)
         return Response({"Удаление успешно!"}, status=status.HTTP_200_OK)
-    
-    
+
+
 class ReservationListView(generics.ListAPIView):
     filterset_class = filtersets.ReservationFilter
     serializer_class = serializers.ReservationListSerializer
@@ -172,6 +174,24 @@ class ReservationListView(generics.ListAPIView):
             return super().filter_queryset(queryset)
 
         return queryset
+
+
+class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
+    filterset_class = ReservationDoctorsFilter
+    
+    def get_serializer_class(self):
+        if self.kwargs.get('pk'):
+            return serializers.ReservationDoctorsSerializer
+        return serializers.ReservationDoctorDetailSerializer
+
+    def get_queryset(self):
+        return (
+            User.objects
+            .select_related("user_type")
+            .prefetch_related("user_specialization", "user_schedule", "reservations")
+            .only("id", "user_firstname", "user_lastname", "user_image", "user_type__user_type_id", "user_type__type_text")
+            .filter(user_type__type_text='Доктор')
+        )
 
 
 def index(request, username):
