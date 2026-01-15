@@ -15,7 +15,6 @@ from apps.core.choices import ReservationRequestStatuses
 from apps.core.permissions import AccessPermissions
 from apps.reservation import filtersets
 from apps.reservation.api.reservations import serializers
-from apps.reservation.filtersets import ReservationDoctorsFilter
 from apps.reservation.models import Reservation
 
 
