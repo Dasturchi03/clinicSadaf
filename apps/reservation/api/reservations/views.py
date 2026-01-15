@@ -179,7 +179,7 @@ class ReservationListView(generics.ListAPIView):
     parameters=[
         OpenApiParameter(
             name='date',
-            type=str,
+            type=date,
             location=OpenApiParameter.QUERY,
             description='DD-MM-YYYY',
             required=True
