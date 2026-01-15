@@ -1,6 +1,5 @@
 import django_filters as filters
 
-from apps.user.models import User
 from apps.reservation.models import Reservation
 
 
@@ -23,13 +22,3 @@ class ReservationFilter(filters.FilterSet):
     class Meta:
         model = Reservation
         fields = ["reservation_doctor", "reservation_client", "is_initial"]
-
-
-class ReservationDoctorsFilter(filters.FilterSet):
-    reservation_date = filters.DateFilter(
-        input_formats=["%d-%m-%Y"], field_name="user_schedule__day", lookup_expr="exact", required=True
-    )
-
-    class Meta:
-        model = User
-        fields = ['reservation_date']

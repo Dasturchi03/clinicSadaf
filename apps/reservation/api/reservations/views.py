@@ -2,7 +2,7 @@ from datetime import date
 
 from django.db.models import Prefetch
 from django.shortcuts import render
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -176,8 +176,18 @@ class ReservationListView(generics.ListAPIView):
         return queryset
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name='date',
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description='DD-MM-YYYY',
+            required=True
+        )
+    ]
+)
 class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
-    filterset_class = ReservationDoctorsFilter
 
     def get(self, request, *args, **kwargs):
         if 'pk' in kwargs:
