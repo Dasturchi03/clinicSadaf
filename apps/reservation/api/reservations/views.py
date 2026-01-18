@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, date
 
 from django.db.models import Prefetch
 from django.shortcuts import render
@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from apps.user.models import User
 from apps.client.models import Client_Public_Phone
@@ -199,12 +200,28 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
         return serializers.ReservationDoctorsSerializer
 
     def get_queryset(self):
+        date_str = self.request.query_params.get("date")
+        if not date_str:
+            raise ValidationError("Дата не выбрана")
+
+        try:
+            target_date = datetime.strptime(date_str, "%d-%m-%Y")
+        except ValueError:
+            raise ValidationError("Неверный формат даты")
+
+        weekday = str(target_date.weekday())
+
         return (
             User.objects
             .select_related("user_type")
             .prefetch_related("user_specialization", "user_schedule", "reservations")
             .only("id", "user_firstname", "user_lastname", "user_image", "user_type__user_type_id", "user_type__type_text")
             .filter(user_type__type_text='Доктор')
+            .filter(
+                user_schedule__day__iexact=weekday,
+                user_schedule__is_working=True
+            )
+            .distinct()
         )
 
 

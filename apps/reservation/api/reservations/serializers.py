@@ -415,7 +415,6 @@ class ReservationListSerializer(serializers.ModelSerializer):
 
 class ReservationDoctorsSerializer(serializers.ModelSerializer):
     user_specialization = UserSpecializationSerializer(many=True, read_only=True)
-    status = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -427,25 +426,6 @@ class ReservationDoctorsSerializer(serializers.ModelSerializer):
             "user_image",
             "status"
         )
-
-    def get_status(self, obj):
-        request = self.context.get('request')
-        date_str = request.query_params.get('date') if request else None
-
-        if not date_str:
-            raise ValidationError("Дата не выбран")
-
-        try:
-            target_date = datetime.strptime(date_str, '%d-%m-%Y')
-
-            schedule = obj.user_schedule.filter(day__iexact=str(target_date.weekday())).first()
-
-            if schedule and schedule.is_working:
-                return True
-            return False
-
-        except ValueError:
-            return "Ошибка формата даты"
 
 
 class ReservationDoctorDetailSerializer(serializers.ModelSerializer):
@@ -460,7 +440,8 @@ class ReservationDoctorDetailSerializer(serializers.ModelSerializer):
             "user_lastname",
             "user_specialization",
             "user_image",
-            "available_slots"
+            "available_slots",
+            "status"
         )
 
     def get_available_slots(self, obj):
