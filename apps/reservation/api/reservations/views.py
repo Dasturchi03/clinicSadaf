@@ -1,8 +1,8 @@
 from datetime import datetime, date
 
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import render
-from django.db.models import Exists, OuterRef, Value, BooleanField
+from django.db.models import Exists, OuterRef
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, status
 from rest_framework.decorators import action
@@ -186,6 +186,12 @@ class ReservationListView(generics.ListAPIView):
             location=OpenApiParameter.QUERY,
             description='DD-MM-YYYY',
             required=True
+        ),
+        OpenApiParameter(
+            name='category',
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False
         )
     ]
 )
@@ -203,6 +209,7 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
 
     def get_queryset(self):
         date_str = self.request.query_params.get("date")
+        category = self.request.query_params.get("category")
         if not date_str:
             raise ValidationError("Дата не выбрана")
 
@@ -219,7 +226,7 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
             is_working=True
         )
 
-        return (
+        q_set = (
             User.objects
             .select_related("user_type")
             .prefetch_related("user_specialization", "user_schedule", "reservations")
@@ -229,6 +236,12 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
                 status=Exists(working_schedule)
             )
         )
+        if category:
+            q_set = q_set.filter(
+                Q(user_specialization__specialization_id = category) | Q(user_specialization__specialization_text = category)
+            )
+
+        return q_set
 
 
 def index(request, username):
