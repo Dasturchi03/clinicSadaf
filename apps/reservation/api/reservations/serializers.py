@@ -415,6 +415,7 @@ class ReservationListSerializer(serializers.ModelSerializer):
 
 class ReservationDoctorsSerializer(serializers.ModelSerializer):
     user_specialization = UserSpecializationSerializer(many=True, read_only=True)
+    status = serializers.BooleanField()
 
     class Meta:
         model = User
@@ -431,6 +432,7 @@ class ReservationDoctorsSerializer(serializers.ModelSerializer):
 class ReservationDoctorDetailSerializer(serializers.ModelSerializer):
     user_specialization = UserSpecializationSerializer(many=True, read_only=True)
     available_slots = serializers.SerializerMethodField()
+    status = serializers.BooleanField()
 
     class Meta:
         model = User
