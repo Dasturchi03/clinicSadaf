@@ -237,10 +237,12 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
             )
         )
         if category:
-            q_set = q_set.filter(
-                Q(user_specialization__specialization_id = category) | Q(user_specialization__specialization_text = category)
-            )
+            q = Q(user_specialization__specialization_text__iexact=category)
 
+            if category.isdigit():
+                q |= Q(user_specialization__specialization_id=int(category))
+
+            q_set = q_set.filter(q)
         return q_set
 
 
