@@ -42,6 +42,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token["username"] = user.username
         token["user_id"] = user.id
+        token["client_id"] = user.client_user.client_id if user.client_user else None
         token["user_fullname"] = "{} {}".format(user.user_firstname, user.user_lastname)
         token["user_image"] = str(user.user_image)
 
