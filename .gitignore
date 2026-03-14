@@ -268,7 +268,7 @@ logs/*
 # /docker/*
 .env.dev
 docker-compose.dev.yml
-Dockerfile
+# Dockerfile
 
 dev-up.sh
 
