@@ -2,6 +2,14 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST")
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
+POSTGRES_DB = os.environ.get("POSTGRES_DB")
+POSTGRES_USER = os.environ.get("POSTGRES_USER")
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-xy59e%t_5$pw!tc@tkx++lq+96r94!#$x7nikaqjhg@kgb1_6g"
@@ -105,11 +113,11 @@ CHANNEL_LAYERS = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "sadaf",
-        "USER": "admin",
-        "PASSWORD": "admin",
-        "HOST": "pgdb",
-        "PORT": "5432",
+        "NAME": POSTGRES_DB,
+        "USER": POSTGRES_USER,
+        "PASSWORD": POSTGRES_PASSWORD,
+        "HOST": POSTGRES_HOST,
+        "PORT": POSTGRES_PORT,
         "ATOMIC_REQUESTS": True,
     }
 }

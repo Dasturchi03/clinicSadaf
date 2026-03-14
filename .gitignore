@@ -264,10 +264,13 @@ jobs/staticfiles
 logs/*.log.*
 logs/*
 
-/docker
-/docker/*
-docker-compose.yml
+# /docker
+# /docker/*
+.env.dev
+docker-compose.dev.yml
 Dockerfile
+
+dev-up.sh
 
 uploads/
 static/
