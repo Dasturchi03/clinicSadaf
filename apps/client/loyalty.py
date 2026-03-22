@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 from apps.client.models import CashbackEntry, Client
@@ -67,7 +68,7 @@ def build_tier_requirements(client):
     goals = [
         {
             "code": "invite_friends",
-            "label": "Do'stlarni taklif qilish",
+            "label": _("Do'stlarni taklif qilish"),
             "current_value": referrals_count,
             "target_value": required_referrals,
             "unit": "ta",
@@ -75,7 +76,7 @@ def build_tier_requirements(client):
         },
         {
             "code": "use_services",
-            "label": "Xizmatlardan foydalanish",
+            "label": _("Xizmatlardan foydalanish"),
             "current_value": client.total_spent_amount,
             "target_value": required_spent,
             "unit": "sum",
@@ -158,9 +159,9 @@ def reward_cashback_for_transaction(transaction_instance):
 def apply_referral_code(*, client, referral_code):
     client = Client.objects.select_for_update().get(pk=client.pk)
     if client.referred_by_id:
-        raise ValidationError("Referral code has already been applied")
+        raise ValidationError(_("Referral code has already been applied"))
     if not referral_code:
-        raise ValidationError({"referral_code": "Referral code is required"})
+        raise ValidationError({"referral_code": _("Referral code is required")})
 
     referrer = (
         Client.objects.select_for_update()
@@ -169,7 +170,7 @@ def apply_referral_code(*, client, referral_code):
         .first()
     )
     if not referrer:
-        raise ValidationError({"referral_code": "Referral code not found"})
+        raise ValidationError({"referral_code": _("Referral code not found")})
 
     client.referred_by = referrer
     client.save(update_fields=["referred_by"])

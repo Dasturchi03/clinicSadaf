@@ -2,6 +2,7 @@ from datetime import datetime, date
 
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, status
 from rest_framework.decorators import action
@@ -270,17 +271,17 @@ class MobileReservationDoctorSlotsView(generics.RetrieveAPIView):
         doctor = self.get_object()
         date_str = request.query_params.get("date")
         if not date_str:
-            raise ValidationError("Дата не выбрана")
+            raise ValidationError(_("Дата не выбрана"))
         try:
             target_date = datetime.strptime(date_str, "%d-%m-%Y").date()
         except ValueError:
-            raise ValidationError("Неверный формат даты")
+            raise ValidationError(_("Неверный формат даты"))
         try:
             slot_minutes = services.normalize_slot_minutes(
                 int(request.query_params.get("slot_minutes", 60))
             )
         except ValueError:
-            raise ValidationError("slot_minutes must be an integer")
+            raise ValidationError(_("slot_minutes must be an integer"))
         slots = services.build_available_slots(
             doctor=doctor,
             target_date=target_date,

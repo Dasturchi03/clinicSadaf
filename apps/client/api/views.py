@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -23,7 +24,7 @@ from apps.transaction.models import Transaction
 def get_mobile_client_or_error(user):
     client = getattr(user, "client_user", None)
     if not client:
-        raise serializers.ValidationError("Current user is not linked to a client")
+        raise serializers.ValidationError(_("Current user is not linked to a client"))
     if not client.referral_code:
         client.save(update_fields=["referral_code"])
     return client

@@ -1,5 +1,6 @@
 from channels.db import database_sync_to_async
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from .models import Notification, NotificationTypes
 
@@ -33,12 +34,12 @@ def filter_notification(user_id):
 
 
 NOTIFICATION_LABELS = {
-    NotificationTypes.RESERVATION_CREATED: "Yangi qabul yaratildi",
-    NotificationTypes.RESERVATION_APPROVED: "Qabul tasdiqlandi",
-    NotificationTypes.RESERVATION_CANCELLED: "Qabul bekor qilindi",
-    NotificationTypes.RESERVATION_CANCELLED_BY_PATIENT: "Qabul bemor tomonidan bekor qilindi",
-    NotificationTypes.RESERVATION_REQUEST_CREATED: "Qabul so'rovi yuborildi",
-    NotificationTypes.RESERVATION_REMINDER: "Qabul eslatmasi",
+    NotificationTypes.RESERVATION_CREATED: _("Yangi qabul yaratildi"),
+    NotificationTypes.RESERVATION_APPROVED: _("Qabul tasdiqlandi"),
+    NotificationTypes.RESERVATION_CANCELLED: _("Qabul bekor qilindi"),
+    NotificationTypes.RESERVATION_CANCELLED_BY_PATIENT: _("Qabul bemor tomonidan bekor qilindi"),
+    NotificationTypes.RESERVATION_REQUEST_CREATED: _("Qabul so'rovi yuborildi"),
+    NotificationTypes.RESERVATION_REMINDER: _("Qabul eslatmasi"),
 }
 
 
@@ -48,19 +49,18 @@ def get_notification_label(notification_type):
 
 def build_notification_message(notification_type, reservation=None):
     if notification_type == NotificationTypes.RESERVATION_REQUEST_CREATED:
-        return "New reservation request received"
+        return _("New reservation request received")
     if notification_type == NotificationTypes.RESERVATION_APPROVED:
-        return "Your reservation has been approved"
+        return _("Your reservation has been approved")
     if notification_type == NotificationTypes.RESERVATION_CANCELLED:
-        return "Your reservation request was cancelled by clinic"
+        return _("Your reservation request was cancelled by clinic")
     if notification_type == NotificationTypes.RESERVATION_CANCELLED_BY_PATIENT:
-        return "Patient cancelled the reservation"
+        return _("Patient cancelled the reservation")
     if notification_type == NotificationTypes.RESERVATION_REMINDER and reservation:
-        return (
-            "Reminder: "
-            f"{reservation.reservation_date.strftime('%d-%m-%Y')} "
-            f"{reservation.reservation_start_time.strftime('%H:%M')}"
-        )
+        return _("Reminder: %(date)s %(time)s") % {
+            "date": reservation.reservation_date.strftime("%d-%m-%Y"),
+            "time": reservation.reservation_start_time.strftime("%H:%M"),
+        }
     return get_notification_label(notification_type)
 
 
@@ -94,7 +94,7 @@ def create_reservation_approved_notifications(*, reservation, doctor, client_use
         receiver=doctor,
         reservation=reservation,
         notification_type=NotificationTypes.RESERVATION_APPROVED,
-        message="Reservation approved",
+        message=_("Reservation approved"),
     )
     create_notification(
         receiver=client_user,

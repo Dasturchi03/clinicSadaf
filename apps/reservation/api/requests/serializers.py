@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from apps.client.api.nested_serializer import NestedClientReservationSerializer
 from apps.notifications.utils import create_reservation_request_notification
@@ -157,9 +158,9 @@ class MobileReservationRequestSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
-            raise ValidationError("Authentication required")
+            raise ValidationError(_("Authentication required"))
         if not getattr(request.user, "client_user", None):
-            raise ValidationError("Current user is not linked to a client")
+            raise ValidationError(_("Current user is not linked to a client"))
 
         doctor = attrs["doctor"]
         reservation_work = attrs["reservation_work"]
@@ -186,7 +187,7 @@ class MobileReservationRequestSerializer(serializers.ModelSerializer):
             doctor_specialization_ids & work_specialization_ids
         ):
             raise ValidationError(
-                {"reservation_work_id": "Selected service does not belong to this doctor"}
+                {"reservation_work_id": _("Selected service does not belong to this doctor")}
             )
         attrs["slot_minutes"] = slot_minutes
         return attrs

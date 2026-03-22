@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 from apps.core.choices import ReservationRequestStatuses
@@ -91,18 +92,25 @@ def ensure_reservation_available(
     exclude_reservation_id=None,
 ):
     if start_time >= end_time:
-        raise ValidationError("Reservation start time must be less than end time")
+        raise ValidationError(_("Reservation start time must be less than end time"))
 
     schedule = get_working_schedule_for_date(doctor, target_date)
     if not schedule:
         raise ValidationError(
-            f"Doctor {doctor.full_name()} is not working on {target_date.strftime('%d-%m-%Y')}"
+            _("Doctor %(doctor)s is not working on %(date)s")
+            % {
+                "doctor": doctor.full_name(),
+                "date": target_date.strftime("%d-%m-%Y"),
+            }
         )
 
     if start_time < schedule.work_start_time or end_time > schedule.work_end_time:
         raise ValidationError(
-            f"Selected time is outside doctor's working hours: "
-            f"{schedule.work_start_time.strftime('%H:%M')} - {schedule.work_end_time.strftime('%H:%M')}"
+            _("Selected time is outside doctor's working hours: %(start)s - %(end)s")
+            % {
+                "start": schedule.work_start_time.strftime("%H:%M"),
+                "end": schedule.work_end_time.strftime("%H:%M"),
+            }
         )
 
     if schedule.lunch_start_time and schedule.lunch_end_time:
@@ -129,8 +137,12 @@ def ensure_reservation_available(
             f"{existing_reservation.reservation_client.client_lastname}"
         )
         raise ValidationError(
-            f"Selected time is already booked: {client_name}, "
-            f"{existing_start_time.strftime('%H:%M')} - {existing_end_time.strftime('%H:%M')}"
+            _("Selected time is already booked: %(client)s, %(start)s - %(end)s")
+            % {
+                "client": client_name,
+                "start": existing_start_time.strftime("%H:%M"),
+                "end": existing_end_time.strftime("%H:%M"),
+            }
         )
 
     return schedule
@@ -209,18 +221,18 @@ def ensure_request_slot_available(
             continue
         if client and existing_request.client_id == client.client_id:
             raise ValidationError("You already have a reservation request for this slot")
-        raise ValidationError("Selected time already has a pending reservation request")
+        raise ValidationError(_("Selected time already has a pending reservation request"))
 
 
 def ensure_request_can_be_approved_by_clinic(reservation_request):
     if not reservation_request.doctor:
-        raise ValidationError("Reservation request does not have a doctor")
+        raise ValidationError(_("Reservation request does not have a doctor"))
     if reservation_request.status == ReservationRequestStatuses.CANCELLED:
-        raise ValidationError("Cancelled request cannot be approved")
+        raise ValidationError(_("Cancelled request cannot be approved"))
     if reservation_request.status == ReservationRequestStatuses.CANCELLED_BY_PATIENT:
-        raise ValidationError("Patient cancelled this request")
+        raise ValidationError(_("Patient cancelled this request"))
     if reservation_request.reservation_id:
-        raise ValidationError("Reservation has already been created for this request")
+        raise ValidationError(_("Reservation has already been created for this request"))
 
 
 @transaction.atomic
@@ -277,7 +289,7 @@ def cancel_reservation_request(reservation_request, *, cancelled_by_patient=Fals
         ReservationRequestStatuses.CANCELLED,
         ReservationRequestStatuses.CANCELLED_BY_PATIENT,
     }:
-        raise ValidationError("Reservation request is already cancelled")
+        raise ValidationError(_("Reservation request is already cancelled"))
 
     reservation_request.status = (
         ReservationRequestStatuses.CANCELLED_BY_PATIENT
@@ -317,9 +329,9 @@ def approve_reservation_request_by_patient(reservation_request):
     ).get(pk=reservation_request.pk)
 
     if reservation_request.status != ReservationRequestStatuses.APPROVED:
-        raise ValidationError("Only approved requests can be confirmed by patient")
+        raise ValidationError(_("Only approved requests can be confirmed by patient"))
     if not reservation_request.reservation_id:
-        raise ValidationError("Reservation request has no created reservation")
+        raise ValidationError(_("Reservation request has no created reservation"))
 
     reservation_request.status = ReservationRequestStatuses.APPROVED_BY_PATIENT
     reservation_request.save(update_fields=["status", "updated_at"])

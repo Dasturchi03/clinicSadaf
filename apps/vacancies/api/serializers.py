@@ -1,6 +1,7 @@
 import os
 
 from rest_framework import serializers
+from django.utils.translation import gettext_lazy as _
 
 from apps.vacancies.models import (
     Vacancy,
@@ -144,17 +145,17 @@ class VacancyApplicationSerializer(serializers.ModelSerializer):
 
     def validate_resume_file(self, value):
         if not value:
-            raise serializers.ValidationError("Resume file is required.")
+            raise serializers.ValidationError(_("Resume file is required."))
 
         ext = os.path.splitext(value.name)[1].replace(".", "").lower()
         if ext not in ALLOWED_RESUME_EXTENSIONS:
             raise serializers.ValidationError(
-                "Allowed file formats: pdf, doc, docx."
+                _("Allowed file formats: pdf, doc, docx.")
             )
 
         if value.size > MAX_RESUME_FILE_SIZE:
             raise serializers.ValidationError(
-                "Resume file size must not exceed 10 MB."
+                _("Resume file size must not exceed 10 MB.")
             )
         return value
 
@@ -162,7 +163,7 @@ class VacancyApplicationSerializer(serializers.ModelSerializer):
         vacancy = attrs.get("vacancy")
         if vacancy and not vacancy.is_active:
             raise serializers.ValidationError(
-                {"vacancy": "You cannot apply to an inactive vacancy."}
+                {"vacancy": _("You cannot apply to an inactive vacancy.")}
             )
         return attrs
 
@@ -214,5 +215,5 @@ class VacancyApplicationStatusSerializer(serializers.ModelSerializer):
     def validate_status(self, value):
         allowed = {choice[0] for choice in VacancyApplicationStatus.choices}
         if value not in allowed:
-            raise serializers.ValidationError("Invalid status.")
+            raise serializers.ValidationError(_("Invalid status."))
         return value

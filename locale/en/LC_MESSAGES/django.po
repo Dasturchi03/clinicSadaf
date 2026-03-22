@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-11 20:20+0500\n"
+"POT-Creation-Date: 2026-03-22 15:45+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,1183 +18,1375 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\apps\core\api\mixins.py:47
-msgid "Field with such value already exists: {}."
-msgstr ""
+#: apps/client/api/views.py:27 apps/reservation/api/requests/serializers.py:163
+msgid "Current user is not linked to a client"
+msgstr "Current user is not linked to a client"
 
-#: .\apps\core\choices.py:6
+#: apps/client/loyalty.py:71
+msgid "Do'stlarni taklif qilish"
+msgstr "Invite friends"
+
+#: apps/client/loyalty.py:79
+msgid "Xizmatlardan foydalanish"
+msgstr "Use services"
+
+#: apps/client/loyalty.py:162
+msgid "Referral code has already been applied"
+msgstr "Referral code has already been applied"
+
+#: apps/client/loyalty.py:164
+msgid "Referral code is required"
+msgstr "Referral code is required"
+
+#: apps/client/loyalty.py:173
+msgid "Referral code not found"
+msgstr "Referral code not found"
+
+#: apps/core/api/mixins.py:47
+msgid "Field with such value already exists: {}."
+msgstr "Field with such value already exists: {}."
+
+#: apps/core/choices.py:6
 msgid "Give credit"
 msgstr ""
 
-#: .\apps\core\choices.py:7
+#: apps/core/choices.py:7
 msgid "Paid credit"
 msgstr ""
 
-#: .\apps\core\choices.py:8
+#: apps/core/choices.py:8
 msgid "Vip credit"
 msgstr ""
 
-#: .\apps\core\choices.py:10
+#: apps/core/choices.py:10
 msgid "Partially paid credit"
 msgstr ""
 
-#: .\apps\core\choices.py:12
+#: apps/core/choices.py:12
 msgid "Forgiven credit"
 msgstr ""
 
-#: .\apps\core\choices.py:14
+#: apps/core/choices.py:14
 msgid "Payment for medical card action"
 msgstr ""
 
-#: .\apps\core\choices.py:17
+#: apps/core/choices.py:17
 msgid "Partial payment for medical card action"
 msgstr ""
 
-#: .\apps\core\choices.py:20
+#: apps/core/choices.py:20
 msgid "Refilled client balance"
 msgstr ""
 
-#: .\apps\core\choices.py:23
+#: apps/core/choices.py:23
 msgid "Refunded client balance"
 msgstr ""
 
-#: .\apps\core\choices.py:28
+#: apps/core/choices.py:28
 msgid "Cash"
 msgstr ""
 
-#: .\apps\core\choices.py:29
+#: apps/core/choices.py:29
 msgid "Online transfer"
 msgstr ""
 
-#: .\apps\core\choices.py:30
+#: apps/core/choices.py:30
 msgid "Card"
 msgstr ""
 
-#: .\apps\core\choices.py:31
+#: apps/core/choices.py:31
 msgid "Another"
 msgstr ""
 
-#: .\apps\core\choices.py:37
+#: apps/core/choices.py:37
 msgid "No"
 msgstr ""
 
-#: .\apps\core\choices.py:41
+#: apps/core/choices.py:41
 msgid "Male"
 msgstr ""
 
-#: .\apps\core\choices.py:42
+#: apps/core/choices.py:42
 msgid "Female"
 msgstr ""
 
-#: .\apps\core\choices.py:46
+#: apps/core/choices.py:46
 msgid "Draft"
 msgstr ""
 
-#: .\apps\core\choices.py:47
+#: apps/core/choices.py:47
 msgid "Approved"
 msgstr ""
 
-#: .\apps\core\choices.py:48
+#: apps/core/choices.py:48
 msgid "Cancelled"
 msgstr ""
 
-#: .\apps\core\choices.py:49
+#: apps/core/choices.py:49
 msgid "Approved by patient"
 msgstr ""
 
-#: .\apps\core\choices.py:50
+#: apps/core/choices.py:50
 msgid "Cancelled by patient"
 msgstr ""
 
-#: .\apps\core\choices.py:55
+#: apps/core/choices.py:55
 msgid "Basic"
 msgstr ""
 
-#: .\apps\core\choices.py:59
+#: apps/core/choices.py:59
+msgid "Bronze"
+msgstr ""
+
+#: apps/core/choices.py:60
+msgid "Silver"
+msgstr ""
+
+#: apps/core/choices.py:61
+msgid "Gold"
+msgstr ""
+
+#: apps/core/choices.py:65
+msgid "Earned"
+msgstr ""
+
+#: apps/core/choices.py:66
+msgid "Referral bonus"
+msgstr ""
+
+#: apps/core/choices.py:67
+msgid "Adjustment"
+msgstr ""
+
+#: apps/core/choices.py:71
 msgid "General information"
 msgstr ""
 
-#: .\apps\core\choices.py:60
+#: apps/core/choices.py:72
 msgid "Our achievements"
 msgstr ""
 
-#: .\apps\core\choices.py:61
+#: apps/core/choices.py:73
 msgid "Laboratory"
 msgstr ""
 
-#: .\apps\core\choices.py:62
+#: apps/core/choices.py:74
 msgid "Comments"
 msgstr ""
 
-#: .\apps\core\choices.py:64
+#: apps/core/choices.py:76
 msgid "News"
 msgstr "News"
 
-#: .\apps\core\countries.py:4
+#: apps/core/countries.py:4
 msgid "Andorra"
 msgstr ""
 
-#: .\apps\core\countries.py:5
+#: apps/core/countries.py:5
 msgid "United Arab Emirates"
 msgstr ""
 
-#: .\apps\core\countries.py:6
+#: apps/core/countries.py:6
 msgid "Afghanistan"
 msgstr ""
 
-#: .\apps\core\countries.py:7
+#: apps/core/countries.py:7
 msgid "Antigua & Barbuda"
 msgstr ""
 
-#: .\apps\core\countries.py:8
+#: apps/core/countries.py:8
 msgid "Anguilla"
 msgstr ""
 
-#: .\apps\core\countries.py:9
+#: apps/core/countries.py:9
 msgid "Albania"
 msgstr ""
 
-#: .\apps\core\countries.py:10
+#: apps/core/countries.py:10
 msgid "Armenia"
 msgstr ""
 
-#: .\apps\core\countries.py:11
+#: apps/core/countries.py:11
 msgid "Netherlands Antilles"
 msgstr ""
 
-#: .\apps\core\countries.py:12
+#: apps/core/countries.py:12
 msgid "Angola"
 msgstr ""
 
-#: .\apps\core\countries.py:13
+#: apps/core/countries.py:13
 msgid "Antarctica"
 msgstr ""
 
-#: .\apps\core\countries.py:14
+#: apps/core/countries.py:14
 msgid "Argentina"
 msgstr ""
 
-#: .\apps\core\countries.py:15
+#: apps/core/countries.py:15
 msgid "American Samoa"
 msgstr ""
 
-#: .\apps\core\countries.py:16
+#: apps/core/countries.py:16
 msgid "Austria"
 msgstr ""
 
-#: .\apps\core\countries.py:17
+#: apps/core/countries.py:17
 msgid "Australia"
 msgstr ""
 
-#: .\apps\core\countries.py:18
+#: apps/core/countries.py:18
 msgid "Aruba"
 msgstr ""
 
-#: .\apps\core\countries.py:19
+#: apps/core/countries.py:19
 msgid "Azerbaijan"
 msgstr ""
 
-#: .\apps\core\countries.py:20
+#: apps/core/countries.py:20
 msgid "Bosnia and Herzegovina"
 msgstr ""
 
-#: .\apps\core\countries.py:21
+#: apps/core/countries.py:21
 msgid "Barbados"
 msgstr ""
 
-#: .\apps\core\countries.py:22
+#: apps/core/countries.py:22
 msgid "Bangladesh"
 msgstr ""
 
-#: .\apps\core\countries.py:23
+#: apps/core/countries.py:23
 msgid "Belgium"
 msgstr ""
 
-#: .\apps\core\countries.py:24
+#: apps/core/countries.py:24
 msgid "Burkina Faso"
 msgstr ""
 
-#: .\apps\core\countries.py:25
+#: apps/core/countries.py:25
 msgid "Bulgaria"
 msgstr ""
 
-#: .\apps\core\countries.py:26
+#: apps/core/countries.py:26
 msgid "Bahrain"
 msgstr ""
 
-#: .\apps\core\countries.py:27
+#: apps/core/countries.py:27
 msgid "Burundi"
 msgstr ""
 
-#: .\apps\core\countries.py:28
+#: apps/core/countries.py:28
 msgid "Benin"
 msgstr ""
 
-#: .\apps\core\countries.py:29
+#: apps/core/countries.py:29
 msgid "Bermuda"
 msgstr ""
 
-#: .\apps\core\countries.py:30
+#: apps/core/countries.py:30
 msgid "Brunei Darussalam"
 msgstr ""
 
-#: .\apps\core\countries.py:31
+#: apps/core/countries.py:31
 msgid "Bolivia"
 msgstr ""
 
-#: .\apps\core\countries.py:32
+#: apps/core/countries.py:32
 msgid "Brazil"
 msgstr ""
 
-#: .\apps\core\countries.py:33
+#: apps/core/countries.py:33
 msgid "Bahama"
 msgstr ""
 
-#: .\apps\core\countries.py:34
+#: apps/core/countries.py:34
 msgid "Bhutan"
 msgstr ""
 
-#: .\apps\core\countries.py:35
+#: apps/core/countries.py:35
 msgid "Bouvet Island"
 msgstr ""
 
-#: .\apps\core\countries.py:36
+#: apps/core/countries.py:36
 msgid "Botswana"
 msgstr ""
 
-#: .\apps\core\countries.py:37
+#: apps/core/countries.py:37
 msgid "Belarus"
 msgstr ""
 
-#: .\apps\core\countries.py:38
+#: apps/core/countries.py:38
 msgid "Belize"
 msgstr ""
 
-#: .\apps\core\countries.py:39
+#: apps/core/countries.py:39
 msgid "Canada"
 msgstr ""
 
-#: .\apps\core\countries.py:40
+#: apps/core/countries.py:40
 msgid "Cocos (Keeling) Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:41
+#: apps/core/countries.py:41
 msgid "Central African Republic"
 msgstr ""
 
-#: .\apps\core\countries.py:42
+#: apps/core/countries.py:42
 msgid "Congo"
 msgstr ""
 
-#: .\apps\core\countries.py:43
+#: apps/core/countries.py:43
 msgid "Switzerland"
 msgstr ""
 
-#: .\apps\core\countries.py:44
+#: apps/core/countries.py:44
 msgid "Ivory Coast"
 msgstr ""
 
-#: .\apps\core\countries.py:45
+#: apps/core/countries.py:45
 msgid "Cook Iislands"
 msgstr ""
 
-#: .\apps\core\countries.py:46
+#: apps/core/countries.py:46
 msgid "Chile"
 msgstr ""
 
-#: .\apps\core\countries.py:47
+#: apps/core/countries.py:47
 msgid "Cameroon"
 msgstr ""
 
-#: .\apps\core\countries.py:48
+#: apps/core/countries.py:48
 msgid "China"
 msgstr ""
 
-#: .\apps\core\countries.py:49
+#: apps/core/countries.py:49
 msgid "Colombia"
 msgstr ""
 
-#: .\apps\core\countries.py:50
+#: apps/core/countries.py:50
 msgid "Costa Rica"
 msgstr ""
 
-#: .\apps\core\countries.py:51
+#: apps/core/countries.py:51
 msgid "Cuba"
 msgstr ""
 
-#: .\apps\core\countries.py:52
+#: apps/core/countries.py:52
 msgid "Cape Verde"
 msgstr ""
 
-#: .\apps\core\countries.py:53
+#: apps/core/countries.py:53
 msgid "Christmas Island"
 msgstr ""
 
-#: .\apps\core\countries.py:54
+#: apps/core/countries.py:54
 msgid "Cyprus"
 msgstr ""
 
-#: .\apps\core\countries.py:55
+#: apps/core/countries.py:55
 msgid "Czech Republic"
 msgstr ""
 
-#: .\apps\core\countries.py:56
+#: apps/core/countries.py:56
 msgid "Germany"
 msgstr ""
 
-#: .\apps\core\countries.py:57
+#: apps/core/countries.py:57
 msgid "Djibouti"
 msgstr ""
 
-#: .\apps\core\countries.py:58
+#: apps/core/countries.py:58
 msgid "Denmark"
 msgstr ""
 
-#: .\apps\core\countries.py:59
+#: apps/core/countries.py:59
 msgid "Dominica"
 msgstr ""
 
-#: .\apps\core\countries.py:60
+#: apps/core/countries.py:60
 msgid "Dominican Republic"
 msgstr ""
 
-#: .\apps\core\countries.py:61
+#: apps/core/countries.py:61
 msgid "Algeria"
 msgstr ""
 
-#: .\apps\core\countries.py:62
+#: apps/core/countries.py:62
 msgid "Ecuador"
 msgstr ""
 
-#: .\apps\core\countries.py:63
+#: apps/core/countries.py:63
 msgid "Estonia"
 msgstr ""
 
-#: .\apps\core\countries.py:64
+#: apps/core/countries.py:64
 msgid "Egypt"
 msgstr ""
 
-#: .\apps\core\countries.py:65
+#: apps/core/countries.py:65
 msgid "Western Sahara"
 msgstr ""
 
-#: .\apps\core\countries.py:66
+#: apps/core/countries.py:66
 msgid "Eritrea"
 msgstr ""
 
-#: .\apps\core\countries.py:67
+#: apps/core/countries.py:67
 msgid "Spain"
 msgstr ""
 
-#: .\apps\core\countries.py:68
+#: apps/core/countries.py:68
 msgid "Ethiopia"
 msgstr ""
 
-#: .\apps\core\countries.py:69
+#: apps/core/countries.py:69
 msgid "Finland"
 msgstr ""
 
-#: .\apps\core\countries.py:70
+#: apps/core/countries.py:70
 msgid "Fiji"
 msgstr ""
 
-#: .\apps\core\countries.py:71
+#: apps/core/countries.py:71
 msgid "Falkland Islands (Malvinas)"
 msgstr ""
 
-#: .\apps\core\countries.py:72
+#: apps/core/countries.py:72
 msgid "Micronesia"
 msgstr ""
 
-#: .\apps\core\countries.py:73
+#: apps/core/countries.py:73
 msgid "Faroe Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:74
+#: apps/core/countries.py:74
 msgid "France"
 msgstr ""
 
-#: .\apps\core\countries.py:75
+#: apps/core/countries.py:75
 msgid "France, Metropolitan"
 msgstr ""
 
-#: .\apps\core\countries.py:76
+#: apps/core/countries.py:76
 msgid "Gabon"
 msgstr ""
 
-#: .\apps\core\countries.py:77
+#: apps/core/countries.py:77
 msgid "United Kingdom (Great Britain)"
 msgstr ""
 
-#: .\apps\core\countries.py:78
+#: apps/core/countries.py:78
 msgid "Grenada"
 msgstr ""
 
-#: .\apps\core\countries.py:79
+#: apps/core/countries.py:79
 msgid "Georgia"
 msgstr ""
 
-#: .\apps\core\countries.py:80
+#: apps/core/countries.py:80
 msgid "French Guiana"
 msgstr ""
 
-#: .\apps\core\countries.py:81
+#: apps/core/countries.py:81
 msgid "Ghana"
 msgstr ""
 
-#: .\apps\core\countries.py:82
+#: apps/core/countries.py:82
 msgid "Gibraltar"
 msgstr ""
 
-#: .\apps\core\countries.py:83
+#: apps/core/countries.py:83
 msgid "Greenland"
 msgstr ""
 
-#: .\apps\core\countries.py:84
+#: apps/core/countries.py:84
 msgid "Gambia"
 msgstr ""
 
-#: .\apps\core\countries.py:85
+#: apps/core/countries.py:85
 msgid "Guinea"
 msgstr ""
 
-#: .\apps\core\countries.py:86
+#: apps/core/countries.py:86
 msgid "Guadeloupe"
 msgstr ""
 
-#: .\apps\core\countries.py:87
+#: apps/core/countries.py:87
 msgid "Equatorial Guinea"
 msgstr ""
 
-#: .\apps\core\countries.py:88
+#: apps/core/countries.py:88
 msgid "Greece"
 msgstr ""
 
-#: .\apps\core\countries.py:89
+#: apps/core/countries.py:89
 msgid "South Georgia and the South Sandwich Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:90
+#: apps/core/countries.py:90
 msgid "Guatemala"
 msgstr ""
 
-#: .\apps\core\countries.py:91
+#: apps/core/countries.py:91
 msgid "Guam"
 msgstr ""
 
-#: .\apps\core\countries.py:92
+#: apps/core/countries.py:92
 msgid "Guinea-Bissau"
 msgstr ""
 
-#: .\apps\core\countries.py:93
+#: apps/core/countries.py:93
 msgid "Guyana"
 msgstr ""
 
-#: .\apps\core\countries.py:94
+#: apps/core/countries.py:94
 msgid "Hong Kong"
 msgstr ""
 
-#: .\apps\core\countries.py:95
+#: apps/core/countries.py:95
 msgid "Heard & McDonald Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:96
+#: apps/core/countries.py:96
 msgid "Honduras"
 msgstr ""
 
-#: .\apps\core\countries.py:97
+#: apps/core/countries.py:97
 msgid "Croatia"
 msgstr ""
 
-#: .\apps\core\countries.py:98
+#: apps/core/countries.py:98
 msgid "Haiti"
 msgstr ""
 
-#: .\apps\core\countries.py:99
+#: apps/core/countries.py:99
 msgid "Hungary"
 msgstr ""
 
-#: .\apps\core\countries.py:100
+#: apps/core/countries.py:100
 msgid "Indonesia"
 msgstr ""
 
-#: .\apps\core\countries.py:101
+#: apps/core/countries.py:101
 msgid "Ireland"
 msgstr ""
 
-#: .\apps\core\countries.py:102
+#: apps/core/countries.py:102
 msgid "Israel"
 msgstr ""
 
-#: .\apps\core\countries.py:103
+#: apps/core/countries.py:103
 msgid "India"
 msgstr ""
 
-#: .\apps\core\countries.py:104
+#: apps/core/countries.py:104
 msgid "British Indian Ocean Territory"
 msgstr ""
 
-#: .\apps\core\countries.py:105
+#: apps/core/countries.py:105
 msgid "Iraq"
 msgstr ""
 
-#: .\apps\core\countries.py:106
+#: apps/core/countries.py:106
 msgid "Islamic Republic of Iran"
 msgstr ""
 
-#: .\apps\core\countries.py:107
+#: apps/core/countries.py:107
 msgid "Iceland"
 msgstr ""
 
-#: .\apps\core\countries.py:108
+#: apps/core/countries.py:108
 msgid "Italy"
 msgstr ""
 
-#: .\apps\core\countries.py:109
+#: apps/core/countries.py:109
 msgid "Jamaica"
 msgstr ""
 
-#: .\apps\core\countries.py:110
+#: apps/core/countries.py:110
 msgid "Jordan"
 msgstr ""
 
-#: .\apps\core\countries.py:111
+#: apps/core/countries.py:111
 msgid "Japan"
 msgstr ""
 
-#: .\apps\core\countries.py:112
+#: apps/core/countries.py:112
 msgid "Kenya"
 msgstr ""
 
-#: .\apps\core\countries.py:113
+#: apps/core/countries.py:113
 msgid "Kyrgyzstan"
 msgstr ""
 
-#: .\apps\core\countries.py:114
+#: apps/core/countries.py:114
 msgid "Cambodia"
 msgstr ""
 
-#: .\apps\core\countries.py:115
+#: apps/core/countries.py:115
 msgid "Kiribati"
 msgstr ""
 
-#: .\apps\core\countries.py:116
+#: apps/core/countries.py:116
 msgid "Comoros"
 msgstr ""
 
-#: .\apps\core\countries.py:117
+#: apps/core/countries.py:117
 msgid "St. Kitts and Nevis"
 msgstr ""
 
-#: .\apps\core\countries.py:118
+#: apps/core/countries.py:118
 msgid "Korea, Democratic People's Republic of"
 msgstr ""
 
-#: .\apps\core\countries.py:119
+#: apps/core/countries.py:119
 msgid "Korea, Republic of"
 msgstr ""
 
-#: .\apps\core\countries.py:120
+#: apps/core/countries.py:120
 msgid "Kuwait"
 msgstr ""
 
-#: .\apps\core\countries.py:121
+#: apps/core/countries.py:121
 msgid "Cayman Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:122
+#: apps/core/countries.py:122
 msgid "Kazakhstan"
 msgstr ""
 
-#: .\apps\core\countries.py:123
+#: apps/core/countries.py:123
 msgid "Lao People's Democratic Republic"
 msgstr ""
 
-#: .\apps\core\countries.py:124
+#: apps/core/countries.py:124
 msgid "Lebanon"
 msgstr ""
 
-#: .\apps\core\countries.py:125
+#: apps/core/countries.py:125
 msgid "Saint Lucia"
 msgstr ""
 
-#: .\apps\core\countries.py:126
+#: apps/core/countries.py:126
 msgid "Liechtenstein"
 msgstr ""
 
-#: .\apps\core\countries.py:127
+#: apps/core/countries.py:127
 msgid "Sri Lanka"
 msgstr ""
 
-#: .\apps\core\countries.py:128
+#: apps/core/countries.py:128
 msgid "Liberia"
 msgstr ""
 
-#: .\apps\core\countries.py:129
+#: apps/core/countries.py:129
 msgid "Lesotho"
 msgstr ""
 
-#: .\apps\core\countries.py:130
+#: apps/core/countries.py:130
 msgid "Lithuania"
 msgstr ""
 
-#: .\apps\core\countries.py:131
+#: apps/core/countries.py:131
 msgid "Luxembourg"
 msgstr ""
 
-#: .\apps\core\countries.py:132
+#: apps/core/countries.py:132
 msgid "Latvia"
 msgstr ""
 
-#: .\apps\core\countries.py:133
+#: apps/core/countries.py:133
 msgid "Libyan Arab Jamahiriya"
 msgstr ""
 
-#: .\apps\core\countries.py:134
+#: apps/core/countries.py:134
 msgid "Morocco"
 msgstr ""
 
-#: .\apps\core\countries.py:135
+#: apps/core/countries.py:135
 msgid "Monaco"
 msgstr ""
 
-#: .\apps\core\countries.py:136
+#: apps/core/countries.py:136
 msgid "Moldova, Republic of"
 msgstr ""
 
-#: .\apps\core\countries.py:137
+#: apps/core/countries.py:137
 msgid "Madagascar"
 msgstr ""
 
-#: .\apps\core\countries.py:138
+#: apps/core/countries.py:138
 msgid "Marshall Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:139
+#: apps/core/countries.py:139
 msgid "Mali"
 msgstr ""
 
-#: .\apps\core\countries.py:140
+#: apps/core/countries.py:140
 msgid "Mongolia"
 msgstr ""
 
-#: .\apps\core\countries.py:141
+#: apps/core/countries.py:141
 msgid "Myanmar"
 msgstr ""
 
-#: .\apps\core\countries.py:142
+#: apps/core/countries.py:142
 msgid "Macau"
 msgstr ""
 
-#: .\apps\core\countries.py:143
+#: apps/core/countries.py:143
 msgid "Northern Mariana Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:144
+#: apps/core/countries.py:144
 msgid "Martinique"
 msgstr ""
 
-#: .\apps\core\countries.py:145
+#: apps/core/countries.py:145
 msgid "Mauritania"
 msgstr ""
 
-#: .\apps\core\countries.py:146
+#: apps/core/countries.py:146
 msgid "Monserrat"
 msgstr ""
 
-#: .\apps\core\countries.py:147
+#: apps/core/countries.py:147
 msgid "Malta"
 msgstr ""
 
-#: .\apps\core\countries.py:148
+#: apps/core/countries.py:148
 msgid "Mauritius"
 msgstr ""
 
-#: .\apps\core\countries.py:149
+#: apps/core/countries.py:149
 msgid "Maldives"
 msgstr ""
 
-#: .\apps\core\countries.py:150
+#: apps/core/countries.py:150
 msgid "Malawi"
 msgstr ""
 
-#: .\apps\core\countries.py:151
+#: apps/core/countries.py:151
 msgid "Mexico"
 msgstr ""
 
-#: .\apps\core\countries.py:152
+#: apps/core/countries.py:152
 msgid "Malaysia"
 msgstr ""
 
-#: .\apps\core\countries.py:153
+#: apps/core/countries.py:153
 msgid "Mozambique"
 msgstr ""
 
-#: .\apps\core\countries.py:154
+#: apps/core/countries.py:154
 msgid "Namibia"
 msgstr ""
 
-#: .\apps\core\countries.py:155
+#: apps/core/countries.py:155
 msgid "New Caledonia"
 msgstr ""
 
-#: .\apps\core\countries.py:156
+#: apps/core/countries.py:156
 msgid "Niger"
 msgstr ""
 
-#: .\apps\core\countries.py:157
+#: apps/core/countries.py:157
 msgid "Norfolk Island"
 msgstr ""
 
-#: .\apps\core\countries.py:158
+#: apps/core/countries.py:158
 msgid "Nigeria"
 msgstr ""
 
-#: .\apps\core\countries.py:159
+#: apps/core/countries.py:159
 msgid "Nicaragua"
 msgstr ""
 
-#: .\apps\core\countries.py:160
+#: apps/core/countries.py:160
 msgid "Netherlands"
 msgstr ""
 
-#: .\apps\core\countries.py:161
+#: apps/core/countries.py:161
 msgid "Norway"
 msgstr ""
 
-#: .\apps\core\countries.py:162
+#: apps/core/countries.py:162
 msgid "Nepal"
 msgstr ""
 
-#: .\apps\core\countries.py:163
+#: apps/core/countries.py:163
 msgid "Nauru"
 msgstr ""
 
-#: .\apps\core\countries.py:164
+#: apps/core/countries.py:164
 msgid "Niue"
 msgstr ""
 
-#: .\apps\core\countries.py:165
+#: apps/core/countries.py:165
 msgid "New Zealand"
 msgstr ""
 
-#: .\apps\core\countries.py:166
+#: apps/core/countries.py:166
 msgid "Oman"
 msgstr ""
 
-#: .\apps\core\countries.py:167
+#: apps/core/countries.py:167
 msgid "Panama"
 msgstr ""
 
-#: .\apps\core\countries.py:168
+#: apps/core/countries.py:168
 msgid "Peru"
 msgstr ""
 
-#: .\apps\core\countries.py:169
+#: apps/core/countries.py:169
 msgid "French Polynesia"
 msgstr ""
 
-#: .\apps\core\countries.py:170
+#: apps/core/countries.py:170
 msgid "Papua New Guinea"
 msgstr ""
 
-#: .\apps\core\countries.py:171
+#: apps/core/countries.py:171
 msgid "Philippines"
 msgstr ""
 
-#: .\apps\core\countries.py:172
+#: apps/core/countries.py:172
 msgid "Pakistan"
 msgstr ""
 
-#: .\apps\core\countries.py:173
+#: apps/core/countries.py:173
 msgid "Poland"
 msgstr ""
 
-#: .\apps\core\countries.py:174
+#: apps/core/countries.py:174
 msgid "St. Pierre & Miquelon"
 msgstr ""
 
-#: .\apps\core\countries.py:175
+#: apps/core/countries.py:175
 msgid "Pitcairn"
 msgstr ""
 
-#: .\apps\core\countries.py:176
+#: apps/core/countries.py:176
 msgid "Puerto Rico"
 msgstr ""
 
-#: .\apps\core\countries.py:177
+#: apps/core/countries.py:177
 msgid "Portugal"
 msgstr ""
 
-#: .\apps\core\countries.py:178
+#: apps/core/countries.py:178
 msgid "Palau"
 msgstr ""
 
-#: .\apps\core\countries.py:179
+#: apps/core/countries.py:179
 msgid "Paraguay"
 msgstr ""
 
-#: .\apps\core\countries.py:180
+#: apps/core/countries.py:180
 msgid "Qatar"
 msgstr ""
 
-#: .\apps\core\countries.py:181
+#: apps/core/countries.py:181
 msgid "Reunion"
 msgstr ""
 
-#: .\apps\core\countries.py:182
+#: apps/core/countries.py:182
 msgid "Romania"
 msgstr ""
 
-#: .\apps\core\countries.py:183
+#: apps/core/countries.py:183
 msgid "Russian Federation"
 msgstr ""
 
-#: .\apps\core\countries.py:184
+#: apps/core/countries.py:184
 msgid "Rwanda"
 msgstr ""
 
-#: .\apps\core\countries.py:185
+#: apps/core/countries.py:185
 msgid "Saudi Arabia"
 msgstr ""
 
-#: .\apps\core\countries.py:186
+#: apps/core/countries.py:186
 msgid "Solomon Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:187
+#: apps/core/countries.py:187
 msgid "Seychelles"
 msgstr ""
 
-#: .\apps\core\countries.py:188
+#: apps/core/countries.py:188
 msgid "Sudan"
 msgstr ""
 
-#: .\apps\core\countries.py:189
+#: apps/core/countries.py:189
 msgid "Sweden"
 msgstr ""
 
-#: .\apps\core\countries.py:190
+#: apps/core/countries.py:190
 msgid "Singapore"
 msgstr ""
 
-#: .\apps\core\countries.py:191
+#: apps/core/countries.py:191
 msgid "St. Helena"
 msgstr ""
 
-#: .\apps\core\countries.py:192
+#: apps/core/countries.py:192
 msgid "Slovenia"
 msgstr ""
 
-#: .\apps\core\countries.py:193
+#: apps/core/countries.py:193
 msgid "Svalbard & Jan Mayen Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:194
+#: apps/core/countries.py:194
 msgid "Slovakia"
 msgstr ""
 
-#: .\apps\core\countries.py:195
+#: apps/core/countries.py:195
 msgid "Sierra Leone"
 msgstr ""
 
-#: .\apps\core\countries.py:196
+#: apps/core/countries.py:196
 msgid "San Marino"
 msgstr ""
 
-#: .\apps\core\countries.py:197
+#: apps/core/countries.py:197
 msgid "Senegal"
 msgstr ""
 
-#: .\apps\core\countries.py:198
+#: apps/core/countries.py:198
 msgid "Somalia"
 msgstr ""
 
-#: .\apps\core\countries.py:199
+#: apps/core/countries.py:199
 msgid "Suriname"
 msgstr ""
 
-#: .\apps\core\countries.py:200
+#: apps/core/countries.py:200
 msgid "Sao Tome & Principe"
 msgstr ""
 
-#: .\apps\core\countries.py:201
+#: apps/core/countries.py:201
 msgid "El Salvador"
 msgstr ""
 
-#: .\apps\core\countries.py:202
+#: apps/core/countries.py:202
 msgid "Syrian Arab Republic"
 msgstr ""
 
-#: .\apps\core\countries.py:203
+#: apps/core/countries.py:203
 msgid "Swaziland"
 msgstr ""
 
-#: .\apps\core\countries.py:204
+#: apps/core/countries.py:204
 msgid "Turks & Caicos Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:205
+#: apps/core/countries.py:205
 msgid "Chad"
 msgstr ""
 
-#: .\apps\core\countries.py:206
+#: apps/core/countries.py:206
 msgid "French Southern Territories"
 msgstr ""
 
-#: .\apps\core\countries.py:207
+#: apps/core/countries.py:207
 msgid "Togo"
 msgstr ""
 
-#: .\apps\core\countries.py:208
+#: apps/core/countries.py:208
 msgid "Thailand"
 msgstr ""
 
-#: .\apps\core\countries.py:209
+#: apps/core/countries.py:209
 msgid "Tajikistan"
 msgstr ""
 
-#: .\apps\core\countries.py:210
+#: apps/core/countries.py:210
 msgid "Tokelau"
 msgstr ""
 
-#: .\apps\core\countries.py:211
+#: apps/core/countries.py:211
 msgid "Turkmenistan"
 msgstr ""
 
-#: .\apps\core\countries.py:212
+#: apps/core/countries.py:212
 msgid "Tunisia"
 msgstr ""
 
-#: .\apps\core\countries.py:213
+#: apps/core/countries.py:213
 msgid "Tonga"
 msgstr ""
 
-#: .\apps\core\countries.py:214
+#: apps/core/countries.py:214
 msgid "East Timor"
 msgstr ""
 
-#: .\apps\core\countries.py:215
+#: apps/core/countries.py:215
 msgid "Turkey"
 msgstr ""
 
-#: .\apps\core\countries.py:216
+#: apps/core/countries.py:216
 msgid "Trinidad & Tobago"
 msgstr ""
 
-#: .\apps\core\countries.py:217
+#: apps/core/countries.py:217
 msgid "Tuvalu"
 msgstr ""
 
-#: .\apps\core\countries.py:218
+#: apps/core/countries.py:218
 msgid "Taiwan, Province of China"
 msgstr ""
 
-#: .\apps\core\countries.py:219
+#: apps/core/countries.py:219
 msgid "Tanzania, United Republic of"
 msgstr ""
 
-#: .\apps\core\countries.py:220
+#: apps/core/countries.py:220
 msgid "Ukraine"
 msgstr ""
 
-#: .\apps\core\countries.py:221
+#: apps/core/countries.py:221
 msgid "Uganda"
 msgstr ""
 
-#: .\apps\core\countries.py:222
+#: apps/core/countries.py:222
 msgid "United States Minor Outlying Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:223
+#: apps/core/countries.py:223
 msgid "United States of America"
 msgstr ""
 
-#: .\apps\core\countries.py:224
+#: apps/core/countries.py:224
 msgid "Uruguay"
 msgstr ""
 
-#: .\apps\core\countries.py:225
+#: apps/core/countries.py:225
 msgid "Uzbekistan"
 msgstr ""
 
-#: .\apps\core\countries.py:226
+#: apps/core/countries.py:226
 msgid "Vatican City State (Holy See)"
 msgstr ""
 
-#: .\apps\core\countries.py:227
+#: apps/core/countries.py:227
 msgid "St. Vincent & the Grenadines"
 msgstr ""
 
-#: .\apps\core\countries.py:228
+#: apps/core/countries.py:228
 msgid "Venezuela"
 msgstr ""
 
-#: .\apps\core\countries.py:229
+#: apps/core/countries.py:229
 msgid "British Virgin Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:230
+#: apps/core/countries.py:230
 msgid "United States Virgin Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:231
+#: apps/core/countries.py:231
 msgid "Viet Nam"
 msgstr ""
 
-#: .\apps\core\countries.py:232
+#: apps/core/countries.py:232
 msgid "Vanuatu"
 msgstr ""
 
-#: .\apps\core\countries.py:233
+#: apps/core/countries.py:233
 msgid "Wallis & Futuna Islands"
 msgstr ""
 
-#: .\apps\core\countries.py:234
+#: apps/core/countries.py:234
 msgid "Samoa"
 msgstr ""
 
-#: .\apps\core\countries.py:235
+#: apps/core/countries.py:235
 msgid "Yemen"
 msgstr ""
 
-#: .\apps\core\countries.py:236
+#: apps/core/countries.py:236
 msgid "Mayotte"
 msgstr ""
 
-#: .\apps\core\countries.py:237
+#: apps/core/countries.py:237
 msgid "Yugoslavia"
 msgstr ""
 
-#: .\apps\core\countries.py:238
+#: apps/core/countries.py:238
 msgid "South Africa"
 msgstr ""
 
-#: .\apps\core\countries.py:239
+#: apps/core/countries.py:239
 msgid "Zambia"
 msgstr ""
 
-#: .\apps\core\countries.py:240
+#: apps/core/countries.py:240
 msgid "Zaire"
 msgstr ""
 
-#: .\apps\core\countries.py:241
+#: apps/core/countries.py:241
 msgid "Zimbabwe"
 msgstr ""
 
-#: .\apps\core\countries.py:242
+#: apps/core/countries.py:242
 msgid "Unknown or unspecified country"
 msgstr ""
 
-#: .\apps\core\exceptions.py:18
+#: apps/core/exceptions.py:18
 msgid "Unique constraint violation."
 msgstr ""
 
-#: .\apps\core\exceptions.py:55
+#: apps/core/exceptions.py:55
 msgid "A database error occurred, please try again later."
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:162
+#: apps/expenses/api/serializers.py:162
 msgid "No valid salary IDs provided"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:187
+#: apps/expenses/api/serializers.py:187
 msgid "Report already exists"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:194
+#: apps/expenses/api/serializers.py:194
 msgid "Some salaries already have reports"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:211
+#: apps/expenses/api/serializers.py:211
 #, python-brace-format
 msgid "Salary with ID {salary_id} not found"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:273
+#: apps/expenses/api/serializers.py:273
 msgid "User ID is required"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:279
+#: apps/expenses/api/serializers.py:279
 msgid "Client ID is required"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:286
+#: apps/expenses/api/serializers.py:286
 msgid "Expense type ID is required"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:297
+#: apps/expenses/api/serializers.py:297
 #, python-brace-format
 msgid "Expense type with ID {expense_type_id} does not exist"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:307
+#: apps/expenses/api/serializers.py:307
 msgid "Income type ID is required"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:319
+#: apps/expenses/api/serializers.py:319
 #, python-brace-format
 msgid "Income type with ID {income_type_id} does not exist"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:329
+#: apps/expenses/api/serializers.py:329
 msgid "Storage item ID is required"
 msgstr ""
 
-#: .\apps\expenses\api\serializers.py:338
+#: apps/expenses/api/serializers.py:338
 #, python-brace-format
 msgid "Storage item with ID {item_id} does not exist"
 msgstr ""
 
-#: .\apps\reservation\api\reservations\serializers.py:62
-#: .\apps\reservation\api\reservations\serializers.py:212
+#: apps/notifications/utils.py:37
+msgid "Yangi qabul yaratildi"
+msgstr ""
+
+#: apps/notifications/utils.py:38
+msgid "Qabul tasdiqlandi"
+msgstr ""
+
+#: apps/notifications/utils.py:39
+msgid "Qabul bekor qilindi"
+msgstr ""
+
+#: apps/notifications/utils.py:40
+msgid "Qabul bemor tomonidan bekor qilindi"
+msgstr ""
+
+#: apps/notifications/utils.py:41
+msgid "Qabul so'rovi yuborildi"
+msgstr ""
+
+#: apps/notifications/utils.py:42
+msgid "Qabul eslatmasi"
+msgstr "Appointment reminder"
+
+#: apps/notifications/utils.py:52
+msgid "New reservation request received"
+msgstr "New reservation request received"
+
+#: apps/notifications/utils.py:54
+msgid "Your reservation has been approved"
+msgstr "Your reservation has been approved"
+
+#: apps/notifications/utils.py:56
+msgid "Your reservation request was cancelled by clinic"
+msgstr "Your reservation request was cancelled by clinic"
+
+#: apps/notifications/utils.py:58
+msgid "Patient cancelled the reservation"
+msgstr "Patient cancelled the reservation"
+
+#: apps/notifications/utils.py:60
+#, python-format
+msgid "Reminder: %(date)s %(time)s"
+msgstr "Reminder: %(date)s %(time)s"
+
+#: apps/notifications/utils.py:97
+msgid "Reservation approved"
+msgstr "Reservation approved"
+
+#: apps/reservation/api/requests/serializers.py:161
+msgid "Authentication required"
+msgstr "Authentication required"
+
+#: apps/reservation/api/requests/serializers.py:190
+msgid "Selected service does not belong to this doctor"
+msgstr ""
+
+#: apps/reservation/api/reservations/serializers.py:66
+#: apps/reservation/api/reservations/serializers.py:188
 #, python-brace-format
 msgid "User with id: {current_user.pk} does not have user type"
 msgstr ""
 
-#: .\apps\transaction\api\serializers.py:187
-#: .\apps\transaction\api\serializers.py:234
-#: .\apps\transaction\api\serializers.py:297
-#: .\apps\transaction\api\serializers.py:402
+#: apps/reservation/api/reservations/views.py:274
+msgid "Дата не выбрана"
+msgstr ""
+
+#: apps/reservation/api/reservations/views.py:278
+msgid "Неверный формат даты"
+msgstr ""
+
+#: apps/reservation/api/reservations/views.py:284
+msgid "slot_minutes must be an integer"
+msgstr ""
+
+#: apps/reservation/services.py:95
+msgid "Reservation start time must be less than end time"
+msgstr ""
+
+#: apps/reservation/services.py:100
+#, python-format
+msgid "Doctor %(doctor)s is not working on %(date)s"
+msgstr ""
+
+#: apps/reservation/services.py:109
+#, python-format
+msgid "Selected time is outside doctor's working hours: %(start)s - %(end)s"
+msgstr ""
+
+#: apps/reservation/services.py:140
+#, python-format
+msgid "Selected time is already booked: %(client)s, %(start)s - %(end)s"
+msgstr ""
+
+#: apps/reservation/services.py:224
+msgid "Selected time already has a pending reservation request"
+msgstr ""
+
+#: apps/reservation/services.py:229
+msgid "Reservation request does not have a doctor"
+msgstr ""
+
+#: apps/reservation/services.py:231
+msgid "Cancelled request cannot be approved"
+msgstr ""
+
+#: apps/reservation/services.py:233
+msgid "Patient cancelled this request"
+msgstr ""
+
+#: apps/reservation/services.py:235
+msgid "Reservation has already been created for this request"
+msgstr ""
+
+#: apps/reservation/services.py:292
+msgid "Reservation request is already cancelled"
+msgstr ""
+
+#: apps/reservation/services.py:332
+msgid "Only approved requests can be confirmed by patient"
+msgstr ""
+
+#: apps/reservation/services.py:334
+msgid "Reservation request has no created reservation"
+msgstr ""
+
+#: apps/transaction/api/serializers.py:187
+#: apps/transaction/api/serializers.py:234
+#: apps/transaction/api/serializers.py:297
+#: apps/transaction/api/serializers.py:402
 #, python-brace-format
 msgid "Client with id: {client_instance.pk} does not have enough balance"
 msgstr ""
 
-#: .\apps\transaction\api\serializers.py:292
+#: apps/transaction/api/serializers.py:292
 msgid "Credit is already paid"
 msgstr ""
 
-#: .\apps\transaction\api\serializers.py:304
+#: apps/transaction/api/serializers.py:304
 #, python-brace-format
 msgid ""
 "Maximum transaction sum for this credit is {credit_instance.credit_price}"
 msgstr ""
 
-#: .\apps\transaction\api\serializers.py:395
+#: apps/transaction/api/serializers.py:395
 #, python-brace-format
 msgid "Client with id: {client_instance.pk} does not have unpaid credits"
 msgstr ""
 
-#: .\apps\transaction\api\serializers.py:482
-#: .\apps\transaction\api\serializers.py:675
+#: apps/transaction/api/serializers.py:482
+#: apps/transaction/api/serializers.py:675
 msgid "Permission denied!"
 msgstr ""
 
-#: .\apps\transaction\api\serializers.py:501
-#: .\apps\transaction\api\serializers.py:504
-#: .\apps\transaction\api\serializers.py:691
-#: .\apps\transaction\api\serializers.py:694
+#: apps/transaction/api/serializers.py:501
+#: apps/transaction/api/serializers.py:504
+#: apps/transaction/api/serializers.py:691
+#: apps/transaction/api/serializers.py:694
 msgid "Medical card is already paid"
 msgstr ""
 
-#: .\apps\transaction\api\serializers.py:697
+#: apps/transaction/api/serializers.py:697
 msgid "Medical card is already credited"
 msgstr ""
 
-#: .\apps\user\admin.py:44
+#: apps/user/admin.py:44
 msgid "Personal info"
 msgstr ""
 
-#: .\apps\user\admin.py:50
+#: apps/user/admin.py:50
 msgid "Permissions"
+msgstr ""
+
+#: apps/vacancies/api/serializers.py:148
+msgid "Resume file is required."
+msgstr ""
+
+#: apps/vacancies/api/serializers.py:153
+msgid "Allowed file formats: pdf, doc, docx."
+msgstr ""
+
+#: apps/vacancies/api/serializers.py:158
+msgid "Resume file size must not exceed 10 MB."
+msgstr ""
+
+#: apps/vacancies/api/serializers.py:166
+msgid "You cannot apply to an inactive vacancy."
+msgstr ""
+
+#: apps/vacancies/api/serializers.py:218
+msgid "Invalid status."
+msgstr ""
+
+#: apps/vacancies/api/views.py:69
+msgid "Vacancy application status updated successfully."
 msgstr ""

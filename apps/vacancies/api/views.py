@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.utils.translation import gettext_lazy as _
 from rest_framework import mixins, status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -65,7 +66,7 @@ class VacancyApplicationStatusUpdateView(RetrieveAPIView):
         serializer.save()
         return Response(
             {
-                "message": "Vacancy application status updated successfully.",
+                "message": _("Vacancy application status updated successfully."),
                 "status": serializer.data["status"],
             },
             status=status.HTTP_200_OK,
