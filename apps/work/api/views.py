@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
@@ -38,7 +38,32 @@ class WorkViewSet(BaseViewSet):
         return Response({"Удаление успешно!"}, status=status.HTTP_200_OK)
 
 
-@extend_schema(tags=["mobile_content"])
+@extend_schema(
+    tags=["mobile_content"],
+    parameters=[
+        OpenApiParameter(
+            name="doctor_id",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter services available for a specific doctor.",
+        ),
+        OpenApiParameter(
+            name="category",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter by category title or category id.",
+        ),
+        OpenApiParameter(
+            name="q",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Search by service title.",
+        ),
+    ],
+)
 class MobileWorkListView(generics.ListAPIView):
     serializer_class = serializers.MobileWorkSerializer
     permission_classes = (AllowAny,)

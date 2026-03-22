@@ -238,7 +238,18 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
         )
 
 
-@extend_schema(tags=["mobile_reservation"])
+@extend_schema(
+    tags=["mobile_reservation"],
+    parameters=[
+        OpenApiParameter(
+            name="specialization",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter doctors by specialization title or specialization id.",
+        ),
+    ],
+)
 class MobileReservationDoctorsView(generics.ListAPIView):
     serializer_class = serializers.MobileReservationDoctorSerializer
     permission_classes = (AllowAny,)
@@ -261,7 +272,25 @@ class MobileReservationDoctorDetailView(generics.RetrieveAPIView):
     queryset = services.get_doctors_queryset()
 
 
-@extend_schema(tags=["mobile_reservation"])
+@extend_schema(
+    tags=["mobile_reservation"],
+    parameters=[
+        OpenApiParameter(
+            name="date",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Target date in DD-MM-YYYY format.",
+        ),
+        OpenApiParameter(
+            name="slot_minutes",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Slot length in minutes. Defaults to 60.",
+        ),
+    ],
+)
 class MobileReservationDoctorSlotsView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileReservationDoctorDetailSerializer
     permission_classes = (AllowAny,)
@@ -299,7 +328,25 @@ class MobileReservationDoctorSlotsView(generics.RetrieveAPIView):
         )
 
 
-@extend_schema(tags=["mobile_reservation"])
+@extend_schema(
+    tags=["mobile_reservation"],
+    parameters=[
+        OpenApiParameter(
+            name="month",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Month summary target. Supported formats: MM-YYYY or YYYY-MM.",
+        ),
+        OpenApiParameter(
+            name="slot_minutes",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Slot length in minutes. Defaults to 60.",
+        ),
+    ],
+)
 class MobileReservationDoctorAvailableDatesView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileReservationDoctorDetailSerializer
     permission_classes = (AllowAny,)
@@ -347,7 +394,18 @@ class MobileReservationDoctorAvailableDatesView(generics.RetrieveAPIView):
         )
 
 
-@extend_schema(tags=["mobile_reservation"])
+@extend_schema(
+    tags=["mobile_reservation"],
+    parameters=[
+        OpenApiParameter(
+            name="status",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter reservations by status: active, history, cancelled.",
+        ),
+    ],
+)
 class MobileMyReservationListView(generics.ListAPIView):
     serializer_class = serializers.MobileReservationListSerializer
     permission_classes = (IsAuthenticated,)

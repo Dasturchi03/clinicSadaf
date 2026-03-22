@@ -1,6 +1,6 @@
 from django.db.models import Prefetch
 from django.http import Http404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.decorators import action
@@ -143,6 +143,18 @@ class XrayViewSet(BaseViewSet):
         return Response({"ok": True}, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=["mobile_reservation"],
+    parameters=[
+        OpenApiParameter(
+            name="status",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter treatments by status: active, in_progress, paid.",
+        ),
+    ],
+)
 class MobileTreatmentListView(ListAPIView):
     serializer_class = serializers.MobileTreatmentListSerializer
     permission_classes = (IsAuthenticated,)
@@ -167,6 +179,7 @@ class MobileTreatmentListView(ListAPIView):
         return queryset
 
 
+@extend_schema(tags=["mobile_reservation"])
 class MobileTreatmentDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileTreatmentDetailSerializer
     permission_classes = (IsAuthenticated,)

@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -31,7 +31,25 @@ class ArticleViewSet(BaseViewSet):
         return ArticleAdminReadSerializer
 
 
-@extend_schema(tags=["mobile_content"])
+@extend_schema(
+    tags=["mobile_content"],
+    parameters=[
+        OpenApiParameter(
+            name="article_type",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Optional article type filter for public articles.",
+        ),
+        OpenApiParameter(
+            name="q",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Search by article title.",
+        ),
+    ],
+)
 class ArticlePublicViewSet(mixins.ListModelMixin,
                            mixins.RetrieveModelMixin,
                            BaseViewSet):
