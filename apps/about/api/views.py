@@ -20,6 +20,7 @@ class ArticlePublicViewSet(mixins.ListModelMixin,
                            BaseViewSet):
     permission_classes = (AllowAny,)
     queryset = Article.objects.prefetch_related("images").order_by("-created_at")
+    http_method_names = ["get", "head", "options"]
 
     def get_serializer_class(self):
         if self.action == "retrieve":

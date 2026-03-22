@@ -38,6 +38,7 @@ class VacancyPublicViewSet(mixins.ListModelMixin,
     queryset = Vacancy.objects.filter(is_active=True).order_by("sort_order", "-created_at")
     pagination_class = BasePagination
     permission_classes = (AllowAny,)
+    http_method_names = ["get", "head", "options"]
 
     def get_serializer_class(self):
         if self.action == "retrieve":
