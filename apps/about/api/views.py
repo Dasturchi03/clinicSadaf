@@ -3,29 +3,15 @@ from rest_framework import mixins
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 
 from apps.core.api.views import BaseViewSet
 
 from apps.core.choices import ArticleTypes
 from apps.about.models import Article
-from apps.about.filtersets import ArticleFilterSet
 from apps.about.api.serializers import (
-    ArticleCreateSerializer,
-    ArticleOutSerializer,
     ArticlePublicDetailSerializer,
     ArticlePublicListSerializer,
 )
-
-
-class ArticleViewSet(ModelViewSet):
-    queryset = Article.objects.prefetch_related('images')
-    filterset_class = ArticleFilterSet
-
-    def get_serializer_class(self):
-        if self.action in ("create", "update", "partial_update"):
-            return ArticleCreateSerializer
-        return ArticleOutSerializer
 
 
 @extend_schema(tags=["mobile_content"])

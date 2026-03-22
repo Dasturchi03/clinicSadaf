@@ -8,7 +8,6 @@ app_name = "about"
 
 
 router = BaseRouter(trailing_slash=False)
-router.register('articles', views.ArticleViewSet, basename='articles')
 router.register("mobile/articles", views.ArticlePublicViewSet, basename="mobile-articles")
 router.register("mobile/news", views.NewsPublicViewSet, basename="mobile-news")
 
