@@ -2,7 +2,6 @@ from datetime import datetime, date
 
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
-from django.db.models import Exists, OuterRef
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, status
 from rest_framework.decorators import action
@@ -238,6 +237,7 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
         )
 
 
+@extend_schema(tags=["mobile_reservation"])
 class MobileReservationDoctorsView(generics.ListAPIView):
     serializer_class = serializers.MobileReservationDoctorSerializer
     permission_classes = (AllowAny,)
@@ -253,12 +253,14 @@ class MobileReservationDoctorsView(generics.ListAPIView):
         return queryset
 
 
+@extend_schema(tags=["mobile_reservation"])
 class MobileReservationDoctorDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileReservationDoctorDetailSerializer
     permission_classes = (AllowAny,)
     queryset = services.get_doctors_queryset()
 
 
+@extend_schema(tags=["mobile_reservation"])
 class MobileReservationDoctorSlotsView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileReservationDoctorDetailSerializer
     permission_classes = (AllowAny,)
@@ -296,6 +298,7 @@ class MobileReservationDoctorSlotsView(generics.RetrieveAPIView):
         )
 
 
+@extend_schema(tags=["mobile_reservation"])
 class MobileMyReservationListView(generics.ListAPIView):
     serializer_class = serializers.MobileReservationListSerializer
     permission_classes = (IsAuthenticated,)
@@ -320,6 +323,7 @@ class MobileMyReservationListView(generics.ListAPIView):
         return queryset
 
 
+@extend_schema(tags=["mobile_reservation"])
 class MobileMyReservationDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileReservationDetailSerializer
     permission_classes = (IsAuthenticated,)

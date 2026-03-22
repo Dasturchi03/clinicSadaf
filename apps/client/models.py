@@ -1,8 +1,16 @@
+import secrets
+
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.choices import ClientTypes, GenderTypes, HepatitisTypes
+from apps.core.choices import (
+    CashbackEntryTypes,
+    ClientTypes,
+    GenderTypes,
+    HepatitisTypes,
+    LoyaltyTiers,
+)
 from apps.core.countries import COUNTRIES
 from apps.core.models import BaseModel
 from apps.user.models import User
@@ -41,6 +49,21 @@ class Client(models.Model):
     client_balance = models.FloatField(
         verbose_name="Баланс клиента", default=0, blank=True
     )
+    referral_code = models.CharField(max_length=32, unique=True, blank=True, null=True)
+    referred_by = models.ForeignKey(
+        "self",
+        related_name="referred_clients",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    loyalty_tier = models.CharField(
+        max_length=20,
+        choices=LoyaltyTiers.choices,
+        default=LoyaltyTiers.BRONZE,
+    )
+    cashback_balance = models.FloatField(default=0, blank=True)
+    total_spent_amount = models.FloatField(default=0, blank=True)
     client_last_viewed_at = models.DateTimeField(default=timezone.now)
     note = models.CharField(max_length=255, blank=True, null=True)
     archive = models.BooleanField(default=False)
@@ -52,8 +75,19 @@ class Client(models.Model):
     def __str__(self):
         return f"{self.client_firstname}, {self.client_lastname}"
 
+    def save(self, *args, **kwargs):
+        if not self.referral_code:
+            self.referral_code = self._generate_referral_code()
+        return super().save(*args, **kwargs)
+
     def full_name(self):
         return f"{self.client_firstname} {self.client_lastname}"
+
+    def _generate_referral_code(self):
+        while True:
+            code = f"SADAF-{secrets.token_hex(4).upper()}"
+            if not Client.objects.filter(referral_code=code).exists():
+                return code
 
     class Meta:
         verbose_name = "Клиент"
@@ -119,3 +153,35 @@ class ClientAnamnesis(BaseModel):
             ("change_clientanamnesis", "Изменить анамнез"),
             ("delete_clientanamnesis", "Удалить анамнез"),
         ]
+
+
+class CashbackEntry(BaseModel):
+    entry_id = models.AutoField(primary_key=True)
+    client = models.ForeignKey(
+        to=Client,
+        related_name="cashback_entries",
+        on_delete=models.CASCADE,
+    )
+    source_transaction = models.OneToOneField(
+        "transaction.Transaction",
+        related_name="cashback_entry",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    related_client = models.ForeignKey(
+        to=Client,
+        related_name="related_cashback_entries",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    entry_type = models.CharField(max_length=32, choices=CashbackEntryTypes.choices)
+    amount = models.FloatField(default=0)
+    balance_after = models.FloatField(default=0)
+    note = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Cashback entry"
+        verbose_name_plural = "Cashback entries"
+        ordering = ["-created_at", "-entry_id"]

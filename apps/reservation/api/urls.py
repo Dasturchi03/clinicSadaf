@@ -3,6 +3,7 @@ from django.urls import path
 from apps.core.api.router import BaseRouter
 from apps.reservation.api.requests.views import (
     MobileReservationRequestCancelView,
+    MobileReservationRequestConfirmView,
     MobileReservationRequestDetailView,
     MobileReservationRequestListCreateView,
     ReservationRequestViewSet,
@@ -62,6 +63,7 @@ urlpatterns = [
     path("mobile/reservation-requests", MobileReservationRequestListCreateView.as_view(), name="mobile_reservation_requests"),
     path("mobile/reservation-requests/<int:pk>", MobileReservationRequestDetailView.as_view(), name="mobile_reservation_request_detail"),
     path("mobile/reservation-requests/<int:pk>/cancel", MobileReservationRequestCancelView.as_view(), name="mobile_reservation_request_cancel"),
+    path("mobile/reservation-requests/<int:pk>/confirm", MobileReservationRequestConfirmView.as_view(), name="mobile_reservation_request_confirm"),
     path("reservation/<str:username>/", index),
 ]
 

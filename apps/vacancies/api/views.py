@@ -32,9 +32,9 @@ class VacancyApplicationViewSet(BaseViewSet):
     permission_classes = (AccessPermissions,)
 
 
-class VacancyPublicListViewSet(mixins.ListModelMixin,
-                               mixins.RetrieveModelMixin,
-                               BaseViewSet):
+class VacancyPublicViewSet(mixins.ListModelMixin,
+                           mixins.RetrieveModelMixin,
+                           BaseViewSet):
     queryset = Vacancy.objects.filter(is_active=True).order_by("sort_order", "-created_at")
     pagination_class = BasePagination
     permission_classes = (AllowAny,)

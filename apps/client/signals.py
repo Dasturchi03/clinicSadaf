@@ -1,16 +1,12 @@
-# from django.dispatch import Signal
-# from apps.user.models import User, User_Public_Phone
-# from apps.sms.tasks import send_sms_with_code
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from apps.client.loyalty import reward_cashback_for_transaction
+from apps.transaction.models import Transaction
 
 
-# def send_sms_for_user_registration(instance, created, **kwargs):
-#     if created:
-#         user = User.objects.filter(client_user=instance).first()
-#         public_phone = User_Public_Phone.objects.filter(user=user).first()
-
-#         send_sms_with_code.apply_async(
-#                 args=("Логин: {}\nПароль: {}".format(user.username, "sadaf"+str(user.username)), public_phone.public_phone), queue="send_sms_code", priority=10)
-
-
-# client_signal = Signal()
-# client_signal.connect(receiver=send_sms_for_user_registration)
+@receiver(post_save, sender=Transaction)
+def transaction_cashback_signal(sender, instance, created, **kwargs):
+    if not created:
+        return
+    reward_cashback_for_transaction(instance)

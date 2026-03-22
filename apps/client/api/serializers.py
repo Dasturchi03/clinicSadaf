@@ -3,7 +3,12 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.client.api.nested_serializer import NestedClientSerializer
-from apps.client.models import Client, Client_Public_Phone, ClientAnamnesis
+from apps.client.loyalty import (
+    apply_referral_code,
+    build_tier_requirements,
+    get_cashback_rate,
+)
+from apps.client.models import CashbackEntry, Client, Client_Public_Phone, ClientAnamnesis
 from apps.credit.api.serializers import CreditSerializer
 from apps.user.api.serializers import UserFlutterSerializer
 from apps.user.models import User, User_Public_Phone
@@ -411,3 +416,216 @@ class ClientAnamnesisDetailSerializer(serializers.ModelSerializer):
             "hepatitis",
             "hiv",
         ]
+
+
+class MobileMeSerializer(serializers.ModelSerializer):
+    phone = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
+    loyalty_tier_label = serializers.CharField(source="get_loyalty_tier_display", read_only=True)
+
+    class Meta:
+        model = Client
+        fields = [
+            "client_id",
+            "username",
+            "full_name",
+            "client_firstname",
+            "client_lastname",
+            "client_father_name",
+            "client_birthdate",
+            "client_gender",
+            "client_citizenship",
+            "client_address",
+            "client_telegram",
+            "client_type",
+            "client_balance",
+            "cashback_balance",
+            "referral_code",
+            "loyalty_tier",
+            "loyalty_tier_label",
+            "total_spent_amount",
+            "note",
+            "phone",
+            "created_at",
+        ]
+
+    def get_phone(self, obj):
+        phone = obj.client_public_phone.first()
+        return phone.public_phone if phone else None
+
+    def get_full_name(self, obj):
+        return obj.full_name()
+
+    def get_username(self, obj):
+        return obj.client_user.username if obj.client_user else None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["client_gender"] = instance.get_client_gender_display()
+        data["client_type"] = instance.get_client_type_display()
+        data["cashback_percent"] = round(get_cashback_rate(instance.loyalty_tier) * 100, 2)
+        return data
+
+
+class MobileMeUpdateSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(required=False, allow_blank=False)
+
+    class Meta:
+        model = Client
+        fields = [
+            "client_firstname",
+            "client_lastname",
+            "client_father_name",
+            "client_birthdate",
+            "client_gender",
+            "client_citizenship",
+            "client_address",
+            "client_telegram",
+            "note",
+            "phone",
+        ]
+        extra_kwargs = {
+            "client_firstname": {"required": False},
+            "client_lastname": {"required": False},
+            "client_father_name": {"required": False},
+            "client_birthdate": {"required": False},
+            "client_gender": {"required": False},
+            "client_citizenship": {"required": False},
+            "client_address": {"required": False},
+            "client_telegram": {"required": False},
+            "note": {"required": False},
+        }
+
+    def update(self, instance, validated_data):
+        phone = validated_data.pop("phone", None)
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+
+        if phone:
+            public_phone = instance.client_public_phone.first()
+            if public_phone:
+                public_phone.public_phone = phone
+                public_phone.save(update_fields=["public_phone"])
+            else:
+                Client_Public_Phone.objects.create(client=instance, public_phone=phone)
+
+            if instance.client_user:
+                user_public_phone = User_Public_Phone.objects.filter(
+                    user=instance.client_user
+                ).first()
+                if user_public_phone:
+                    user_public_phone.public_phone = phone
+                    user_public_phone.save(update_fields=["public_phone"])
+                else:
+                    User_Public_Phone.objects.create(
+                        user=instance.client_user, public_phone=phone
+                    )
+        return instance
+
+
+class MobileReferralInfoSerializer(serializers.ModelSerializer):
+    referred_by_name = serializers.SerializerMethodField()
+    referrals_count = serializers.SerializerMethodField()
+    loyalty_tier_label = serializers.CharField(source="get_loyalty_tier_display", read_only=True)
+
+    class Meta:
+        model = Client
+        fields = [
+            "client_id",
+            "referral_code",
+            "referred_by",
+            "referred_by_name",
+            "referrals_count",
+            "loyalty_tier",
+            "loyalty_tier_label",
+            "cashback_balance",
+            "total_spent_amount",
+        ]
+
+    def get_referred_by_name(self, obj):
+        return obj.referred_by.full_name() if obj.referred_by else None
+
+    def get_referrals_count(self, obj):
+        return obj.referred_clients.count()
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["cashback_percent"] = round(get_cashback_rate(instance.loyalty_tier) * 100, 2)
+        return data
+
+
+class MobileCashbackEntrySerializer(serializers.ModelSerializer):
+    entry_type_label = serializers.CharField(source="get_entry_type_display", read_only=True)
+    related_client_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CashbackEntry
+        fields = [
+            "entry_id",
+            "entry_type",
+            "entry_type_label",
+            "amount",
+            "balance_after",
+            "note",
+            "related_client_name",
+            "created_at",
+        ]
+
+    def get_related_client_name(self, obj):
+        return obj.related_client.full_name() if obj.related_client else None
+
+
+class ApplyReferralCodeSerializer(serializers.Serializer):
+    referral_code = serializers.CharField()
+
+    def save(self, **kwargs):
+        client = self.context["client"]
+        return apply_referral_code(
+            client=client,
+            referral_code=self.validated_data["referral_code"],
+        )
+
+
+class MobileStatusSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    current_tier_label = serializers.CharField(source="get_loyalty_tier_display", read_only=True)
+    cashback_percent = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Client
+        fields = [
+            "client_id",
+            "full_name",
+            "loyalty_tier",
+            "current_tier_label",
+            "cashback_balance",
+            "referral_code",
+            "progress",
+            "cashback_percent",
+        ]
+
+    def get_full_name(self, obj):
+        return obj.full_name()
+
+    def get_cashback_percent(self, obj):
+        return round(get_cashback_rate(obj.loyalty_tier) * 100, 2)
+
+    def get_progress(self, obj):
+        progress = build_tier_requirements(obj)
+        if progress["next_tier"]:
+            progress["next_tier_label"] = dict(obj._meta.get_field("loyalty_tier").choices).get(
+                progress["next_tier"], progress["next_tier"]
+            )
+        else:
+            progress["next_tier_label"] = None
+        return progress
+
+
+class MobileDashboardSerializer(serializers.Serializer):
+    profile = MobileMeSerializer()
+    counters = serializers.DictField()
+    loyalty = MobileReferralInfoSerializer()
+    next_reservation = serializers.DictField(allow_null=True)

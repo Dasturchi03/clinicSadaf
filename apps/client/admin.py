@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Client, Client_Public_Phone
+from .models import CashbackEntry, Client, Client_Public_Phone
 
 
 class PublicPhoneAdmin(admin.ModelAdmin):
@@ -23,6 +23,8 @@ class ClientAdmin(admin.ModelAdmin):
         "client_firstname",
         "client_lastname",
         "client_balance",
+        "cashback_balance",
+        "loyalty_tier",
         "created_at",
     ]
     list_display_links = ["pk", "client_firstname"]
@@ -31,3 +33,4 @@ class ClientAdmin(admin.ModelAdmin):
 
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Client_Public_Phone, PublicPhoneAdmin)
+admin.site.register(CashbackEntry)

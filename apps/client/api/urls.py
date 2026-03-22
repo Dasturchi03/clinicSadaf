@@ -14,6 +14,12 @@ router.register(
 
 
 urlpatterns = [
+    path("mobile/dashboard", views.MobileDashboardView.as_view(), name="mobile_dashboard"),
+    path("mobile/me", views.MobileMeView.as_view(), name="mobile_me"),
+    path("mobile/status", views.MobileStatusView.as_view(), name="mobile_status"),
+    path("mobile/loyalty", views.MobileLoyaltyView.as_view(), name="mobile_loyalty"),
+    path("mobile/cashback/history", views.MobileCashbackHistoryView.as_view(), name="mobile_cashback_history"),
+    path("mobile/referral/apply-code", views.MobileApplyReferralCodeView.as_view(), name="mobile_apply_referral_code"),
     path(
         "clients/create/flutter",
         views.ClientFlutterViewSet.as_view({"post": "create"}),

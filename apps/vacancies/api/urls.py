@@ -8,7 +8,7 @@ app_name = "vacancies"
 router = BaseRouter(trailing_slash=False)
 router.register("vacancies", views.VacancyViewSet, basename="vacancies")
 router.register("vacancy-applications", views.VacancyApplicationViewSet, basename="vacancy-applications")
-router.register("mobile/vacancies", views.VacancyPublicListViewSet, basename="mobile-vacancies")
+router.register("mobile/vacancies", views.VacancyPublicViewSet, basename="mobile-vacancies")
 
 urlpatterns = router.urls + [
     path(

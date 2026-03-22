@@ -2,8 +2,15 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 
+from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
+from apps.core.choices import ReservationRequestStatuses
+from apps.notifications.utils import (
+    create_reservation_approved_notifications,
+    create_reservation_cancelled_by_patient_notification,
+    create_reservation_cancelled_notification,
+)
 from apps.user.models import User
 from .models import Reservation
 
@@ -17,6 +24,11 @@ WEEKDAY_NAMES = {
     4: "Friday",
     5: "Saturday",
     6: "Sunday",
+}
+ACTIVE_REQUEST_STATUSES = {
+    ReservationRequestStatuses.DRAFT,
+    ReservationRequestStatuses.APPROVED,
+    ReservationRequestStatuses.APPROVED_BY_PATIENT,
 }
 
 
@@ -168,3 +180,147 @@ def build_available_slots(doctor: User, target_date: date, slot_minutes: int = 6
         current_dt = slot_end_dt
 
     return slots
+
+
+def ensure_request_slot_available(
+    client,
+    doctor: User,
+    target_date: date,
+    start_time,
+    end_time,
+    exclude_request_id=None,
+):
+    ensure_reservation_available(
+        doctor=doctor,
+        target_date=target_date,
+        start_time=start_time,
+        end_time=end_time,
+    )
+
+    active_requests = doctor.reservation_requests.filter(
+        date=target_date,
+        status__in=ACTIVE_REQUEST_STATUSES,
+    )
+    if exclude_request_id:
+        active_requests = active_requests.exclude(pk=exclude_request_id)
+
+    for existing_request in active_requests.select_related("client"):
+        if existing_request.time != start_time:
+            continue
+        if client and existing_request.client_id == client.client_id:
+            raise ValidationError("You already have a reservation request for this slot")
+        raise ValidationError("Selected time already has a pending reservation request")
+
+
+def ensure_request_can_be_approved_by_clinic(reservation_request):
+    if not reservation_request.doctor:
+        raise ValidationError("Reservation request does not have a doctor")
+    if reservation_request.status == ReservationRequestStatuses.CANCELLED:
+        raise ValidationError("Cancelled request cannot be approved")
+    if reservation_request.status == ReservationRequestStatuses.CANCELLED_BY_PATIENT:
+        raise ValidationError("Patient cancelled this request")
+    if reservation_request.reservation_id:
+        raise ValidationError("Reservation has already been created for this request")
+
+
+@transaction.atomic
+def approve_reservation_request_by_clinic(
+    reservation_request,
+    *,
+    end_time,
+    is_initial=False,
+):
+    reservation_request = reservation_request.__class__.objects.select_for_update().select_related(
+        "client", "doctor", "reservation_work"
+    ).get(pk=reservation_request.pk)
+
+    ensure_request_can_be_approved_by_clinic(reservation_request)
+    ensure_reservation_available(
+        doctor=reservation_request.doctor,
+        target_date=reservation_request.date,
+        start_time=reservation_request.time,
+        end_time=end_time,
+    )
+
+    reservation_instance = Reservation.objects.create(
+        reservation_client=reservation_request.client,
+        reservation_doctor=reservation_request.doctor,
+        reservation_work=reservation_request.reservation_work,
+        reservation_notes=reservation_request.note,
+        reservation_date=reservation_request.date,
+        reservation_start_time=reservation_request.time,
+        reservation_end_time=end_time,
+        is_initial=is_initial,
+    )
+
+    reservation_request.reservation = reservation_instance
+    reservation_request.status = ReservationRequestStatuses.APPROVED
+    reservation_request.save(update_fields=["reservation", "status", "updated_at"])
+
+    create_reservation_approved_notifications(
+        reservation=reservation_instance,
+        doctor=reservation_request.doctor,
+        client_user=reservation_request.client.client_user
+        if reservation_request.client
+        else None,
+    )
+    return reservation_request
+
+
+@transaction.atomic
+def cancel_reservation_request(reservation_request, *, cancelled_by_patient=False):
+    reservation_request = reservation_request.__class__.objects.select_for_update().select_related(
+        "doctor", "client__client_user", "reservation"
+    ).get(pk=reservation_request.pk)
+
+    if reservation_request.status in {
+        ReservationRequestStatuses.CANCELLED,
+        ReservationRequestStatuses.CANCELLED_BY_PATIENT,
+    }:
+        raise ValidationError("Reservation request is already cancelled")
+
+    reservation_request.status = (
+        ReservationRequestStatuses.CANCELLED_BY_PATIENT
+        if cancelled_by_patient
+        else ReservationRequestStatuses.CANCELLED
+    )
+    reservation_request.save(update_fields=["status", "updated_at"])
+
+    reservation = reservation_request.reservation
+    if reservation:
+        reservation.cancelled = True
+        reservation.cancelled_by_patient = cancelled_by_patient
+        reservation.save(update_fields=["cancelled", "cancelled_by_patient"])
+
+    if cancelled_by_patient and reservation_request.doctor:
+        create_reservation_cancelled_by_patient_notification(
+            reservation=reservation,
+            doctor=reservation_request.doctor,
+        )
+    elif (
+        not cancelled_by_patient
+        and reservation_request.client
+        and reservation_request.client.client_user
+    ):
+        create_reservation_cancelled_notification(
+            reservation=reservation,
+            client_user=reservation_request.client.client_user,
+        )
+
+    return reservation_request
+
+
+@transaction.atomic
+def approve_reservation_request_by_patient(reservation_request):
+    reservation_request = reservation_request.__class__.objects.select_for_update().select_related(
+        "reservation"
+    ).get(pk=reservation_request.pk)
+
+    if reservation_request.status != ReservationRequestStatuses.APPROVED:
+        raise ValidationError("Only approved requests can be confirmed by patient")
+    if not reservation_request.reservation_id:
+        raise ValidationError("Reservation request has no created reservation")
+
+    reservation_request.status = ReservationRequestStatuses.APPROVED_BY_PATIENT
+    reservation_request.save(update_fields=["status", "updated_at"])
+    return reservation_request

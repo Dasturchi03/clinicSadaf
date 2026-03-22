@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.client.api.nested_serializer import NestedClientReservationSerializer
+from apps.notifications.utils import create_reservation_request_notification
 from apps.reservation import services
 from apps.reservation.models import ReservationRequest
 from apps.user.api.nested_serializers import NestedDoctorSerializer
@@ -66,6 +67,26 @@ class ReservationRequestSerializer(serializers.ModelSerializer):
             "doctor_name": {"read_only": True},
         }
 
+    def validate(self, attrs):
+        client = attrs.get("client")
+        doctor = attrs.get("doctor")
+        target_date = attrs.get("date")
+        start_time = attrs.get("time")
+
+        if client and doctor and target_date and start_time:
+            end_time = (
+                datetime.combine(target_date, start_time) + timedelta(minutes=60)
+            ).time()
+            services.ensure_request_slot_available(
+                client=client,
+                doctor=doctor,
+                target_date=target_date,
+                start_time=start_time,
+                end_time=end_time,
+                exclude_request_id=getattr(self.instance, "pk", None),
+            )
+        return attrs
+
     def create(self, validated_data):
         validated_data["doctor_name"] = validated_data["doctor"].full_name()
         return super().create(validated_data)
@@ -97,6 +118,13 @@ class MobileReservationRequestSerializer(serializers.ModelSerializer):
     date = serializers.DateField(format="%d-%m-%Y", input_formats=["%d-%m-%Y"])
     time = serializers.TimeField(format="%H:%M", input_formats=["%H:%M"])
     slot_minutes = serializers.IntegerField(write_only=True, required=False, default=60)
+    status_code = serializers.CharField(source="status", read_only=True)
+    status_label = serializers.SerializerMethodField()
+    ui_state = serializers.SerializerMethodField()
+    next_action = serializers.SerializerMethodField()
+    can_cancel = serializers.SerializerMethodField()
+    can_confirm = serializers.SerializerMethodField()
+    reservation_id = serializers.SerializerMethodField()
 
     class Meta:
         model = ReservationRequest
@@ -109,6 +137,13 @@ class MobileReservationRequestSerializer(serializers.ModelSerializer):
             "reservation_work",
             "doctor_name",
             "status",
+            "status_code",
+            "status_label",
+            "ui_state",
+            "next_action",
+            "can_cancel",
+            "can_confirm",
+            "reservation_id",
             "note",
             "date",
             "time",
@@ -134,7 +169,8 @@ class MobileReservationRequestSerializer(serializers.ModelSerializer):
         end_time = (
             datetime.combine(target_date, start_time) + timedelta(minutes=slot_minutes)
         ).time()
-        services.ensure_reservation_available(
+        services.ensure_request_slot_available(
+            client=request.user.client_user,
             doctor=doctor,
             target_date=target_date,
             start_time=start_time,
@@ -160,9 +196,43 @@ class MobileReservationRequestSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         validated_data["client"] = request.user.client_user
         validated_data["doctor_name"] = validated_data["doctor"].full_name()
-        return super().create(validated_data)
+        instance = super().create(validated_data)
+        if instance.doctor:
+            create_reservation_request_notification(instance.doctor)
+        return instance
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["status"] = instance.get_status_display()
         return data
+
+    def get_status_label(self, instance):
+        return instance.get_status_display()
+
+    def get_ui_state(self, instance):
+        mapping = {
+            "draft": "pending",
+            "approved": "success",
+            "approved_by_patient": "success",
+            "cancelled": "cancelled",
+            "cancelled_by_patient": "cancelled",
+        }
+        return mapping.get(instance.status, "pending")
+
+    def get_next_action(self, instance):
+        if instance.status == "approved" and instance.reservation:
+            return "confirm_reservation"
+        if instance.reservation:
+            return "open_reservation"
+        if instance.status == "draft":
+            return "wait_for_clinic"
+        return "open_requests"
+
+    def get_can_cancel(self, instance):
+        return instance.status in {"draft", "approved"}
+
+    def get_can_confirm(self, instance):
+        return instance.status == "approved" and bool(instance.reservation)
+
+    def get_reservation_id(self, instance):
+        return instance.reservation.reservation_id if instance.reservation else None

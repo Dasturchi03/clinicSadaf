@@ -55,6 +55,18 @@ class ClientTypes(models.TextChoices):
     BASIC = "Basic", _("Basic")
 
 
+class LoyaltyTiers(models.TextChoices):
+    BRONZE = "bronze", _("Bronze")
+    SILVER = "silver", _("Silver")
+    GOLD = "gold", _("Gold")
+
+
+class CashbackEntryTypes(models.TextChoices):
+    EARNED = "earned", _("Earned")
+    REFERRAL_BONUS = "referral_bonus", _("Referral bonus")
+    ADJUSTMENT = "adjustment", _("Adjustment")
+
+
 class ArticleTypes(models.TextChoices):
     GENERAL_INFO = "general_info", _("General information")
     ACHIEVEMENTS = "achievements", _("Our achievements")

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
@@ -37,6 +38,7 @@ class WorkViewSet(BaseViewSet):
         return Response({"Удаление успешно!"}, status=status.HTTP_200_OK)
 
 
+@extend_schema(tags=["mobile_content"])
 class MobileWorkListView(generics.ListAPIView):
     serializer_class = serializers.MobileWorkSerializer
     permission_classes = (AllowAny,)
@@ -67,6 +69,7 @@ class MobileWorkListView(generics.ListAPIView):
         return queryset.distinct()
 
 
+@extend_schema(tags=["mobile_content"])
 class MobileWorkDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileWorkSerializer
     permission_classes = (AllowAny,)
