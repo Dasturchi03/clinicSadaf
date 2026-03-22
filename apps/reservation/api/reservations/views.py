@@ -300,6 +300,54 @@ class MobileReservationDoctorSlotsView(generics.RetrieveAPIView):
 
 
 @extend_schema(tags=["mobile_reservation"])
+class MobileReservationDoctorAvailableDatesView(generics.RetrieveAPIView):
+    serializer_class = serializers.MobileReservationDoctorDetailSerializer
+    permission_classes = (AllowAny,)
+    queryset = services.get_doctors_queryset()
+
+    def retrieve(self, request, *args, **kwargs):
+        doctor = self.get_object()
+        month_value = request.query_params.get("month")
+        if not month_value:
+            raise ValidationError(_("month query parameter is required"))
+
+        parsed = None
+        for fmt in ("%m-%Y", "%Y-%m"):
+            try:
+                parsed = datetime.strptime(month_value, fmt)
+                break
+            except ValueError:
+                continue
+
+        if not parsed:
+            raise ValidationError(_("month format must be MM-YYYY or YYYY-MM"))
+
+        try:
+            slot_minutes = services.normalize_slot_minutes(
+                int(request.query_params.get("slot_minutes", 60))
+            )
+        except ValueError:
+            raise ValidationError(_("slot_minutes must be an integer"))
+
+        dates = services.build_available_dates_summary(
+            doctor=doctor,
+            year=parsed.year,
+            month=parsed.month,
+            slot_minutes=slot_minutes,
+        )
+        return Response(
+            {
+                "doctor_id": doctor.id,
+                "doctor_name": doctor.full_name(),
+                "month": parsed.strftime("%m-%Y"),
+                "slot_minutes": slot_minutes,
+                "dates": dates,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+@extend_schema(tags=["mobile_reservation"])
 class MobileMyReservationListView(generics.ListAPIView):
     serializer_class = serializers.MobileReservationListSerializer
     permission_classes = (IsAuthenticated,)

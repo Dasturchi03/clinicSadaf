@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from calendar import monthrange
 from datetime import date, datetime, timedelta
 
 from django.db import transaction
@@ -192,6 +193,48 @@ def build_available_slots(doctor: User, target_date: date, slot_minutes: int = 6
         current_dt = slot_end_dt
 
     return slots
+
+
+def build_available_dates_summary(
+    doctor: User,
+    *,
+    year: int,
+    month: int,
+    slot_minutes: int = 60,
+):
+    total_days = monthrange(year, month)[1]
+    result = []
+
+    for day in range(1, total_days + 1):
+        target_date = date(year, month, day)
+        schedule = get_working_schedule_for_date(doctor, target_date)
+        if not schedule:
+            result.append(
+                {
+                    "date": target_date.strftime("%d-%m-%Y"),
+                    "is_working": False,
+                    "available_slots_count": 0,
+                    "has_available_slots": False,
+                }
+            )
+            continue
+
+        slots = build_available_slots(
+            doctor=doctor,
+            target_date=target_date,
+            slot_minutes=slot_minutes,
+        )
+        available_slots_count = sum(1 for slot in slots if slot["is_available"])
+        result.append(
+            {
+                "date": target_date.strftime("%d-%m-%Y"),
+                "is_working": True,
+                "available_slots_count": available_slots_count,
+                "has_available_slots": available_slots_count > 0,
+            }
+        )
+
+    return result
 
 
 def ensure_request_slot_available(

@@ -11,6 +11,7 @@ from apps.reservation.api.requests.views import (
 from apps.reservation.api.reservations.views import (
     MobileMyReservationDetailView,
     MobileMyReservationListView,
+    MobileReservationDoctorAvailableDatesView,
     MobileReservationDoctorDetailView,
     MobileReservationDoctorsView,
     MobileReservationDoctorSlotsView,
@@ -58,6 +59,7 @@ urlpatterns = [
     path("mobile/reservation/doctors", MobileReservationDoctorsView.as_view(), name="mobile_doctors_list"),
     path("mobile/reservation/doctors/<int:pk>", MobileReservationDoctorDetailView.as_view(), name="mobile_doctor_detail"),
     path("mobile/reservation/doctors/<int:pk>/slots", MobileReservationDoctorSlotsView.as_view(), name="mobile_doctor_slots"),
+    path("mobile/reservation/doctors/<int:pk>/available-dates", MobileReservationDoctorAvailableDatesView.as_view(), name="mobile_doctor_available_dates"),
     path("mobile/reservations", MobileMyReservationListView.as_view(), name="mobile_my_reservations"),
     path("mobile/reservations/<int:pk>", MobileMyReservationDetailView.as_view(), name="mobile_my_reservation_detail"),
     path("mobile/reservation-requests", MobileReservationRequestListCreateView.as_view(), name="mobile_reservation_requests"),
