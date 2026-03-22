@@ -41,6 +41,7 @@ urlpatterns += i18n_patterns(
     path("", include("apps.report.api.urls", namespace="report")),
     path("", include("apps.sms.api.urls", namespace="sms")),
     path("", include("apps.about.api.urls", namespace="about")),
+    path("", include("apps.vacancies.api.urls", namespace="vacancies")),
     prefix_default_language=False,
 )
 
