@@ -6,16 +6,18 @@ from django.db.models import Exists, OuterRef
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, status
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
 from apps.user.models import User
-from apps.user.models import UserSchedule
 from apps.client.models import Client_Public_Phone
 from apps.core.api.serializers import EmptySerializer
 from apps.core.api.views import BaseViewSet
 from apps.core.choices import ReservationRequestStatuses
+from apps.core.pagination import BasePagination
 from apps.core.permissions import AccessPermissions
+from apps.reservation import services
 from apps.reservation import filtersets
 from apps.reservation.api.reservations import serializers
 from apps.reservation.models import Reservation
@@ -209,33 +211,16 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
 
     def get_queryset(self):
         date_str = self.request.query_params.get("date")
-        category = self.request.query_params.get("category")
+        category = self.request.query_params.get("category") or self.request.query_params.get("specialization")
         if not date_str:
             raise ValidationError("Дата не выбрана")
 
         try:
-            target_date = datetime.strptime(date_str, "%d-%m-%Y")
+            datetime.strptime(date_str, "%d-%m-%Y")
         except ValueError:
             raise ValidationError("Неверный формат даты")
 
-        weekday = str(target_date.weekday())
-        
-        working_schedule = UserSchedule.objects.filter(
-            user=OuterRef("pk"),
-            day__iexact=weekday,
-            is_working=True
-        )
-
-        q_set = (
-            User.objects
-            .select_related("user_type")
-            .prefetch_related("user_specialization", "user_schedule", "reservations")
-            .only("id", "user_firstname", "user_lastname", "user_image", "user_type__user_type_id", "user_type__type_text")
-            .filter(user_type__type_text='Доктор')
-            .annotate(
-                status=Exists(working_schedule)
-            )
-        )
+        q_set = services.get_doctors_queryset()
         if category:
             q = Q(user_specialization__specialization_text__iexact=category)
 
@@ -243,7 +228,109 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
                 q |= Q(user_specialization__specialization_id=int(category))
 
             q_set = q_set.filter(q)
-        return q_set
+        return q_set.only(
+            "id",
+            "user_firstname",
+            "user_lastname",
+            "user_image",
+            "user_type__user_type_id",
+            "user_type__type_text",
+        )
+
+
+class MobileReservationDoctorsView(generics.ListAPIView):
+    serializer_class = serializers.MobileReservationDoctorSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        queryset = services.get_doctors_queryset()
+        specialization = self.request.query_params.get("specialization")
+        if specialization:
+            q = Q(user_specialization__specialization_text__iexact=specialization)
+            if specialization.isdigit():
+                q |= Q(user_specialization__specialization_id=int(specialization))
+            queryset = queryset.filter(q)
+        return queryset
+
+
+class MobileReservationDoctorDetailView(generics.RetrieveAPIView):
+    serializer_class = serializers.MobileReservationDoctorDetailSerializer
+    permission_classes = (AllowAny,)
+    queryset = services.get_doctors_queryset()
+
+
+class MobileReservationDoctorSlotsView(generics.RetrieveAPIView):
+    serializer_class = serializers.MobileReservationDoctorDetailSerializer
+    permission_classes = (AllowAny,)
+    queryset = services.get_doctors_queryset()
+
+    def retrieve(self, request, *args, **kwargs):
+        doctor = self.get_object()
+        date_str = request.query_params.get("date")
+        if not date_str:
+            raise ValidationError("Дата не выбрана")
+        try:
+            target_date = datetime.strptime(date_str, "%d-%m-%Y").date()
+        except ValueError:
+            raise ValidationError("Неверный формат даты")
+        try:
+            slot_minutes = services.normalize_slot_minutes(
+                int(request.query_params.get("slot_minutes", 60))
+            )
+        except ValueError:
+            raise ValidationError("slot_minutes must be an integer")
+        slots = services.build_available_slots(
+            doctor=doctor,
+            target_date=target_date,
+            slot_minutes=slot_minutes,
+        )
+        return Response(
+            {
+                "doctor_id": doctor.id,
+                "doctor_name": doctor.full_name(),
+                "date": target_date.strftime("%d-%m-%Y"),
+                "slot_minutes": slot_minutes,
+                "slots": slots,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class MobileMyReservationListView(generics.ListAPIView):
+    serializer_class = serializers.MobileReservationListSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = BasePagination
+
+    def get_queryset(self):
+        client = getattr(self.request.user, "client_user", None)
+        if not client:
+            return Reservation.objects.none()
+        queryset = Reservation.objects.filter(reservation_client=client).select_related(
+            "reservation_doctor", "reservation_work", "reservation_request"
+        ).order_by("-reservation_date", "-reservation_start_time")
+
+        status_filter = self.request.query_params.get("status")
+        today = date.today()
+        if status_filter == "active":
+            queryset = queryset.filter(cancelled=False, reservation_date__gte=today)
+        elif status_filter == "history":
+            queryset = queryset.filter(cancelled=False, reservation_date__lt=today)
+        elif status_filter == "cancelled":
+            queryset = queryset.filter(cancelled=True)
+        return queryset
+
+
+class MobileMyReservationDetailView(generics.RetrieveAPIView):
+    serializer_class = serializers.MobileReservationDetailSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        client = getattr(self.request.user, "client_user", None)
+        if not client:
+            return Reservation.objects.none()
+        return Reservation.objects.filter(reservation_client=client).select_related(
+            "reservation_client", "reservation_doctor", "reservation_work", "reservation_request"
+        )
 
 
 def index(request, username):

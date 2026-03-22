@@ -1,8 +1,18 @@
 from django.urls import path
 
 from apps.core.api.router import BaseRouter
-from apps.reservation.api.requests.views import ReservationRequestViewSet
+from apps.reservation.api.requests.views import (
+    MobileReservationRequestCancelView,
+    MobileReservationRequestDetailView,
+    MobileReservationRequestListCreateView,
+    ReservationRequestViewSet,
+)
 from apps.reservation.api.reservations.views import (
+    MobileMyReservationDetailView,
+    MobileMyReservationListView,
+    MobileReservationDoctorDetailView,
+    MobileReservationDoctorsView,
+    MobileReservationDoctorSlotsView,
     ReservationListView,
     ReservationViewSet,
     ReservationDoctorsView,
@@ -44,6 +54,14 @@ urlpatterns = [
     ),
     path("reservation/doctors", ReservationDoctorsView.as_view(), name='doctors_list'),
     path("reservation/doctors/<int:pk>", ReservationDoctorsView.as_view(), name='doctor_detail'),
+    path("mobile/reservation/doctors", MobileReservationDoctorsView.as_view(), name="mobile_doctors_list"),
+    path("mobile/reservation/doctors/<int:pk>", MobileReservationDoctorDetailView.as_view(), name="mobile_doctor_detail"),
+    path("mobile/reservation/doctors/<int:pk>/slots", MobileReservationDoctorSlotsView.as_view(), name="mobile_doctor_slots"),
+    path("mobile/reservations", MobileMyReservationListView.as_view(), name="mobile_my_reservations"),
+    path("mobile/reservations/<int:pk>", MobileMyReservationDetailView.as_view(), name="mobile_my_reservation_detail"),
+    path("mobile/reservation-requests", MobileReservationRequestListCreateView.as_view(), name="mobile_reservation_requests"),
+    path("mobile/reservation-requests/<int:pk>", MobileReservationRequestDetailView.as_view(), name="mobile_reservation_request_detail"),
+    path("mobile/reservation-requests/<int:pk>/cancel", MobileReservationRequestCancelView.as_view(), name="mobile_reservation_request_cancel"),
     path("reservation/<str:username>/", index),
 ]
 

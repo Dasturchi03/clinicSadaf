@@ -1,9 +1,11 @@
 from django.db.models import Prefetch
 from django.http import Http404
 from drf_spectacular.utils import extend_schema
+from rest_framework import generics
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.core.api.views import BaseViewSet
@@ -139,3 +141,56 @@ class XrayViewSet(BaseViewSet):
             serializer.save()
 
         return Response({"ok": True}, status=status.HTTP_200_OK)
+
+
+class MobileTreatmentListView(ListAPIView):
+    serializer_class = serializers.MobileTreatmentListSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = BasePagination
+
+    def get_queryset(self):
+        client = getattr(self.request.user, "client_user", None)
+        if not client:
+            return MedicalCard.objects.none()
+        queryset = (
+            MedicalCard.objects.filter(client=client)
+            .prefetch_related("transaction_card", "credit_card")
+            .order_by("-card_created_at")
+        )
+        status_filter = self.request.query_params.get("status")
+        if status_filter == "paid":
+            queryset = queryset.filter(card_is_paid=True)
+        elif status_filter == "in_progress":
+            queryset = queryset.filter(card_is_paid=False, card_is_done=True)
+        elif status_filter == "active":
+            queryset = queryset.filter(card_is_paid=False)
+        return queryset
+
+
+class MobileTreatmentDetailView(generics.RetrieveAPIView):
+    serializer_class = serializers.MobileTreatmentDetailSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        client = getattr(self.request.user, "client_user", None)
+        if not client:
+            return MedicalCard.objects.none()
+        return (
+            MedicalCard.objects.filter(client=client)
+            .select_related("client")
+            .prefetch_related(
+                "transaction_card",
+                "credit_card",
+                Prefetch(
+                    "stage",
+                    queryset=Stage.objects.select_related("tooth").prefetch_related(
+                        Prefetch(
+                            "action_stage",
+                            queryset=Action.objects.select_related(
+                                "action_doctor", "action_work"
+                            ).order_by("action_id"),
+                        )
+                    ).order_by("stage_index"),
+                ),
+            )
+        )

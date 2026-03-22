@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Sum
 
 from apps.client.api.nested_serializer import NestedClientSerializer
 from apps.credit.api.serializers import CreditSerializer
@@ -146,3 +147,107 @@ class XrayBulkUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Xray
         fields = ["client", "medical_card", "stage", "tooth", "images"]
+
+
+class MobileTreatmentActionSerializer(serializers.ModelSerializer):
+    action_work_title = serializers.SerializerMethodField()
+    doctor = NestedDoctorSerializer(source="action_doctor", read_only=True)
+
+    class Meta:
+        model = Action
+        fields = [
+            "action_id",
+            "action_work_title",
+            "doctor",
+            "action_note",
+            "action_price",
+            "action_is_done",
+            "action_is_paid",
+            "action_finished_at",
+        ]
+
+    def get_action_work_title(self, obj):
+        return obj.action_work.work_title if obj.action_work else None
+
+
+class MobileTreatmentStageSerializer(serializers.ModelSerializer):
+    tooth = NestedToothSerializer(read_only=True)
+    action_stage = MobileTreatmentActionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Stage
+        fields = [
+            "stage_id",
+            "stage_index",
+            "stage_is_done",
+            "stage_is_paid",
+            "tooth",
+            "action_stage",
+        ]
+
+
+class MobileTreatmentListSerializer(serializers.ModelSerializer):
+    doctors = serializers.SerializerMethodField()
+    paid_amount = serializers.SerializerMethodField()
+    remaining_amount = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MedicalCard
+        fields = [
+            "card_id",
+            "card_price",
+            "card_discount_price",
+            "card_discount_percent",
+            "card_is_done",
+            "card_is_paid",
+            "card_finished_at",
+            "doctors",
+            "paid_amount",
+            "remaining_amount",
+            "status",
+            "card_created_at",
+        ]
+
+    def get_doctors(self, obj):
+        doctors = (
+            User.objects.filter(action_doctor__action_stage__card=obj)
+            .only("id", "user_firstname", "user_lastname")
+            .distinct()
+        )
+        return NestedDoctorSerializer(doctors, many=True).data
+
+    def get_paid_amount(self, obj):
+        paid_amount = obj.transaction_card.aggregate(total=Sum("transaction_sum"))["total"]
+        return paid_amount or 0
+
+    def get_remaining_amount(self, obj):
+        total_price = obj.card_discount_price or obj.card_price or 0
+        paid_amount = self.get_paid_amount(obj)
+        return max(total_price - paid_amount, 0)
+
+    def get_status(self, obj):
+        if obj.card_is_paid:
+            return "paid"
+        if obj.card_is_done:
+            return "in_progress"
+        return "active"
+
+
+class MobileTreatmentDetailSerializer(MobileTreatmentListSerializer):
+    client = NestedClientSerializer(read_only=True)
+    stage = MobileTreatmentStageSerializer(many=True, read_only=True)
+    credits = serializers.SerializerMethodField()
+    transactions = TransactionSerializer(source="transaction_card", many=True, read_only=True)
+
+    class Meta(MobileTreatmentListSerializer.Meta):
+        fields = MobileTreatmentListSerializer.Meta.fields + [
+            "client",
+            "stage",
+            "credits",
+            "transactions",
+        ]
+
+    def get_credits(self, obj):
+        credits = obj.credit_card.all().order_by("-credit_created_at")
+        return CreditSerializer(credits, many=True).data

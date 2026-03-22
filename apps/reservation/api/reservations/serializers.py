@@ -9,7 +9,9 @@ from apps.client.api.serializers import PatientSerializer
 from apps.client.models import Client
 from apps.medcard.models import Action, MedicalCard, Stage
 from apps.notifications.models import Notification
+from apps.reservation import services
 from apps.reservation.models import Reservation
+from apps.user.api.nested_serializers import NestedDoctorSerializer
 from apps.user.api.serializers import DoctorSerializer, UserSpecializationSerializer
 from apps.user.models import User
 from apps.work.api.nested_serializers import NestedWorkReservationSerializer
@@ -95,40 +97,12 @@ class ReservationSerializer(serializers.ModelSerializer):
         end_time = validated_data.get("reservation_end_time")
         reservation_date = validated_data.get("reservation_date")
 
-        doctor_schedule = doctor_instance.user_schedule.filter(
-            day=reservation_date.weekday()
-        ).first()
-
-        if doctor_schedule and not doctor_schedule.is_working:
-            raise ValidationError(
-                f"Запись не создана. У доктора: {doctor_instance.user_firstname}, {doctor_instance.user_lastname} выходной день: {reservation_date}"
-            )
-
-        if start_time >= end_time:
-            msg = "Reservation start time must be less then end time"
-            raise ValidationError(msg)
-
-        reservations = Reservation.objects.filter(
-            reservation_doctor=doctor_instance,
-            reservation_date=reservation_date,
-            cancelled=False,
+        services.ensure_reservation_available(
+            doctor=doctor_instance,
+            target_date=reservation_date,
+            start_time=start_time,
+            end_time=end_time,
         )
-
-        if reservations.exists():
-            for existing_reservation in reservations:
-                existing_start_time = existing_reservation.reservation_start_time
-                existing_end_time = existing_reservation.reservation_end_time
-
-                if end_time <= existing_start_time or start_time >= existing_end_time:
-                    continue
-
-                client_name = (
-                    existing_reservation.reservation_client.client_firstname
-                    + " "
-                    + existing_reservation.reservation_client.client_lastname
-                )
-                msg = f"Запись на это время уже назначена: {client_name}, начало: {existing_start_time}, конец: {existing_end_time}"
-                raise ValidationError(msg)
 
         reservation_instance = Reservation(
             reservation_client=client_instance,
@@ -240,51 +214,18 @@ class ReservationUpdateSerializer(serializers.ModelSerializer):
         end_time = validated_data.get("reservation_end_time", None)
         reservation_date = validated_data.get("reservation_date")
 
-        doctor_schedule = doctor_instance.user_schedule.filter(
-            day=reservation_date.weekday()
-        ).first()
+        target_doctor = doctor_instance or instance.reservation_doctor
+        target_date = reservation_date or instance.reservation_date
+        target_start = start_time or instance.reservation_start_time
+        target_end = end_time or instance.reservation_end_time
 
-        if doctor_schedule and not doctor_schedule.is_working:
-            raise ValidationError(
-                f"Запись не создана. У доктора: {doctor_instance.user_firstname}, {doctor_instance.user_lastname} выходной день: {reservation_date}"
-            )
-
-        if start_time and end_time and start_time >= end_time:
-            raise ValidationError("Reservation start time must be less than end time")
-
-        reservations = Reservation.objects.filter(
-            reservation_doctor=doctor_instance,
-            reservation_date=reservation_date,
-            cancelled=False,
+        services.ensure_reservation_available(
+            doctor=target_doctor,
+            target_date=target_date,
+            start_time=target_start,
+            end_time=target_end,
+            exclude_reservation_id=instance.reservation_id,
         )
-
-        if reservations.exists():
-
-            for existing_reservation in reservations:
-
-                existing_start_time = existing_reservation.reservation_start_time
-                existing_end_time = existing_reservation.reservation_end_time
-
-                client_name = (
-                    existing_reservation.reservation_client.client_firstname
-                    + " "
-                    + existing_reservation.reservation_client.client_lastname
-                )
-                msg = f"Запись на это время уже назначена: {client_name}, начало: {existing_start_time}, конец: {existing_end_time}"
-
-                if (
-                    end_time <= existing_start_time
-                    or start_time >= existing_end_time
-                    or instance.pk == existing_reservation.pk
-                ):
-                    continue
-
-                client_name = (
-                    existing_reservation.reservation_client.client_firstname
-                    + " "
-                    + existing_reservation.reservation_client.client_lastname
-                )
-                raise ValidationError(msg)
 
         instance.reservation_client = (
             client_instance if client_instance else instance.reservation_client
@@ -415,7 +356,8 @@ class ReservationListSerializer(serializers.ModelSerializer):
 
 class ReservationDoctorsSerializer(serializers.ModelSerializer):
     user_specialization = UserSpecializationSerializer(many=True, read_only=True)
-    status = serializers.BooleanField(read_only=True)
+    status = serializers.SerializerMethodField()
+    available_slots_count = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -425,14 +367,42 @@ class ReservationDoctorsSerializer(serializers.ModelSerializer):
             "user_lastname",
             "user_specialization",
             "user_image",
-            "status"
+            "status",
+            "available_slots_count",
         )
+
+    def get_status(self, obj):
+        request = self.context.get("request")
+        if not request:
+            return False
+        date_str = request.query_params.get("date")
+        if not date_str:
+            return False
+        try:
+            target_date = datetime.strptime(date_str, "%d-%m-%Y").date()
+        except ValueError:
+            return False
+        return services.get_working_schedule_for_date(obj, target_date) is not None
+
+    def get_available_slots_count(self, obj):
+        request = self.context.get("request")
+        if not request:
+            return 0
+        date_str = request.query_params.get("date")
+        if not date_str:
+            return 0
+        try:
+            target_date = datetime.strptime(date_str, "%d-%m-%Y").date()
+        except ValueError:
+            return 0
+        slots = services.build_available_slots(obj, target_date)
+        return sum(1 for slot in slots if slot["is_available"])
 
 
 class ReservationDoctorDetailSerializer(serializers.ModelSerializer):
     user_specialization = UserSpecializationSerializer(many=True, read_only=True)
     available_slots = serializers.SerializerMethodField()
-    status = serializers.BooleanField(read_only=True)
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -457,51 +427,75 @@ class ReservationDoctorDetailSerializer(serializers.ModelSerializer):
 
         try:
             target_date = datetime.strptime(date_str, '%d-%m-%Y').date()
-            weekday_num = str(target_date.weekday())
-
-            schedule = obj.user_schedule.filter(day__iexact=weekday_num, is_working=True).first()
-            if not schedule:
-                return []
-
-            booked_reservations = obj.reservations.filter(
-                reservation_date=target_date,
-                cancelled=False
-            ).values('reservation_start_time', 'reservation_end_time')
-
-            slots = []
-            current_dt = datetime.combine(target_date, schedule.work_start_time)
-            end_dt = datetime.combine(target_date, schedule.work_end_time)
-
-            while current_dt < end_dt:
-                slot_start = current_dt.time()
-                next_dt = current_dt + timedelta(hours=1)
-                
-                if next_dt > end_dt:
-                    break
-                    
-                slot_end = next_dt.time()
-
-                is_lunch = False
-                if schedule.lunch_start_time and schedule.lunch_end_time:
-                    if not (slot_start >= schedule.lunch_end_time or slot_end <= schedule.lunch_start_time):
-                        is_lunch = True
-
-                is_booked = any(
-                    res['reservation_start_time'] < slot_end and 
-                    res['reservation_end_time'] > slot_start 
-                    for res in booked_reservations
-                )
-
-                if not is_lunch:
-                    slots.append({
-                        "start": slot_start.strftime("%H:%M"),
-                        "end": slot_end.strftime("%H:%M"),
-                        "is_booked": is_booked
-                    })
-                
-                current_dt = next_dt
-
-            return slots
+            return services.build_available_slots(obj, target_date)
 
         except Exception:
             return []
+
+    def get_status(self, obj):
+        request = self.context.get("request")
+        if not request:
+            return False
+        date_str = request.query_params.get("date")
+        if not date_str:
+            return False
+        try:
+            target_date = datetime.strptime(date_str, "%d-%m-%Y").date()
+        except ValueError:
+            return False
+        return services.get_working_schedule_for_date(obj, target_date) is not None
+
+
+class MobileReservationDoctorSerializer(ReservationDoctorsSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta(ReservationDoctorsSerializer.Meta):
+        fields = ReservationDoctorsSerializer.Meta.fields + ("full_name",)
+
+    def get_full_name(self, obj):
+        return obj.full_name()
+
+
+class MobileReservationDoctorDetailSerializer(ReservationDoctorDetailSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta(ReservationDoctorDetailSerializer.Meta):
+        fields = ReservationDoctorDetailSerializer.Meta.fields + ("full_name",)
+
+    def get_full_name(self, obj):
+        return obj.full_name()
+
+
+class MobileReservationListSerializer(serializers.ModelSerializer):
+    reservation_doctor = NestedDoctorSerializer(read_only=True)
+    reservation_work = NestedWorkReservationSerializer(read_only=True)
+    request_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            "reservation_id",
+            "reservation_doctor",
+            "reservation_work",
+            "reservation_notes",
+            "reservation_date",
+            "reservation_start_time",
+            "reservation_end_time",
+            "is_initial",
+            "cancelled",
+            "cancelled_by_patient",
+            "request_status",
+            "created_at",
+        ]
+
+    def get_request_status(self, obj):
+        if hasattr(obj, "reservation_request") and obj.reservation_request:
+            return obj.reservation_request.get_status_display()
+        return None
+
+
+class MobileReservationDetailSerializer(MobileReservationListSerializer):
+    reservation_client = NestedClientReservationSerializer(read_only=True)
+
+    class Meta(MobileReservationListSerializer.Meta):
+        fields = MobileReservationListSerializer.Meta.fields + ["reservation_client"]

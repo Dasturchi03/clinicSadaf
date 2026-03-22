@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.core.api.router import DefaultRouter
+from rest_framework.routers import DefaultRouter
 from apps.medcard.api import views
 
 app_name = "medcard"
@@ -35,6 +35,8 @@ urlpatterns = [
         name="medcard_list",
     ),
     path("medcards/teeth", views.ToothListView.as_view(), name="teeth_list"),
+    path("mobile/treatments", views.MobileTreatmentListView.as_view(), name="mobile_treatments"),
+    path("mobile/treatments/<int:pk>", views.MobileTreatmentDetailView.as_view(), name="mobile_treatment_detail"),
 ]
 
 urlpatterns += router.urls

@@ -86,6 +86,14 @@ class ReservationRequest(BaseModel):
         null=True,
         blank=True,
     )
+    reservation_work = models.ForeignKey(
+        to=Work,
+        verbose_name="Работа",
+        related_name="reservation_requests",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     status = models.CharField(
         max_length=255,
         choices=ReservationRequestStatuses.choices,

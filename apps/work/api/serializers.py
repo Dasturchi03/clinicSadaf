@@ -233,3 +233,22 @@ class WorkDetailSerializer(serializers.ModelSerializer):
             "work_fixed_salary_amount": {"read_only": True},
             "work_hybrid_salary_amount": {"read_only": True},
         }
+
+
+class MobileWorkSerializer(serializers.ModelSerializer):
+    category = WorkCategorySerializer(many=True, read_only=True)
+    specialization = WorkSpecializationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Work
+        fields = [
+            "work_id",
+            "work_type",
+            "category",
+            "specialization",
+            "work_title",
+            "work_basic_price",
+            "work_vip_price",
+            "work_discount_price",
+            "work_discount_percent",
+        ]

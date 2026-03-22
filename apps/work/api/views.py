@@ -1,3 +1,6 @@
+from django.db.models import Q
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -32,3 +35,41 @@ class WorkViewSet(BaseViewSet):
         instance.deleted = True
         instance.save(update_fields=["deleted"])
         return Response({"Удаление успешно!"}, status=status.HTTP_200_OK)
+
+
+class MobileWorkListView(generics.ListAPIView):
+    serializer_class = serializers.MobileWorkSerializer
+    permission_classes = (AllowAny,)
+    pagination_class = BasePagination
+
+    def get_queryset(self):
+        queryset = (
+            Work.objects.filter(deleted=False)
+            .prefetch_related("category", "specialization")
+            .order_by("work_title")
+        )
+        doctor_id = self.request.query_params.get("doctor_id")
+        category = self.request.query_params.get("category")
+        q = self.request.query_params.get("q")
+
+        if doctor_id:
+            queryset = queryset.filter(
+                Q(specialization__user_specialization__id=doctor_id)
+                | Q(specialization__isnull=True)
+            )
+        if category:
+            category_query = Q(category__category_title__icontains=category)
+            if category.isdigit():
+                category_query |= Q(category__category_id=int(category))
+            queryset = queryset.filter(category_query)
+        if q:
+            queryset = queryset.filter(work_title__icontains=q)
+        return queryset.distinct()
+
+
+class MobileWorkDetailView(generics.RetrieveAPIView):
+    serializer_class = serializers.MobileWorkSerializer
+    permission_classes = (AllowAny,)
+    queryset = Work.objects.filter(deleted=False).prefetch_related(
+        "category", "specialization"
+    )

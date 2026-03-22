@@ -2,11 +2,14 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.core.api.views import BaseViewSet
 from apps.core.choices import ReservationRequestStatuses
 from apps.core.pagination import BasePagination
+from apps.notifications.models import Notification
+from apps.reservation import services
 from apps.reservation import filtersets
 from apps.reservation.api.requests import serializers
 from apps.reservation.models import Reservation, ReservationRequest
@@ -37,15 +40,16 @@ class ReservationRequestViewSet(BaseViewSet):
         valid_data = serializer.validated_data
 
         reservation_request = self.get_object()
-        self.check_for_reservation_existance(
-            reservation_request.doctor,
-            reservation_request.date,
+        services.ensure_reservation_available(
+            doctor=reservation_request.doctor,
+            target_date=reservation_request.date,
             start_time=reservation_request.time,
             end_time=valid_data["end_time"],
         )
         reservation_instance = Reservation.objects.create(
             reservation_client=reservation_request.client,
             reservation_doctor=reservation_request.doctor,
+            reservation_work=reservation_request.reservation_work,
             reservation_notes=reservation_request.note,
             reservation_date=reservation_request.date,
             reservation_start_time=reservation_request.time,
@@ -63,7 +67,7 @@ class ReservationRequestViewSet(BaseViewSet):
         return Response(
             {
                 "ok": True,
-                "reservation_id": reservation_instance.id,
+                "reservation_id": reservation_instance.reservation_id,
                 "status": ReservationRequestStatuses.APPROVED,
             },
             status=status.HTTP_200_OK,
@@ -132,25 +136,57 @@ class ReservationRequestViewSet(BaseViewSet):
             status=status.HTTP_200_OK,
         )
 
-    def check_for_reservation_existance(self, doctor, date, start_time, end_time):
-        reservations = Reservation.objects.filter(
-            reservation_doctor=doctor,
-            reservation_date=date,
-            cancelled=False,
+class MobileReservationRequestListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    pagination_class = BasePagination
+
+    def get_serializer_class(self):
+        return serializers.MobileReservationRequestSerializer
+
+    def get_queryset(self):
+        client = getattr(self.request.user, "client_user", None)
+        if not client:
+            return ReservationRequest.objects.none()
+        return ReservationRequest.objects.filter(client=client).select_related(
+            "doctor", "reservation"
+        ).order_by("-created_at")
+
+
+class MobileReservationRequestDetailView(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.MobileReservationRequestSerializer
+
+    def get_queryset(self):
+        client = getattr(self.request.user, "client_user", None)
+        if not client:
+            return ReservationRequest.objects.none()
+        return ReservationRequest.objects.filter(client=client).select_related(
+            "doctor", "reservation"
         )
 
-        if reservations.exists():
-            for existing_reservation in reservations:
-                existing_start_time = existing_reservation.reservation_start_time
-                existing_end_time = existing_reservation.reservation_end_time
 
-                if end_time <= existing_start_time or start_time >= existing_end_time:
-                    continue
+class MobileReservationRequestCancelView(generics.UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.MobileReservationRequestSerializer
+    http_method_names = ["patch"]
 
-                client_name = (
-                    existing_reservation.reservation_client.client_firstname
-                    + " "
-                    + existing_reservation.reservation_client.client_lastname
-                )
-                msg = f"Запись на это время уже назначена: {client_name}, начало: {existing_start_time}, конец: {existing_end_time}"
-                return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        client = getattr(self.request.user, "client_user", None)
+        if not client:
+            return ReservationRequest.objects.none()
+        return ReservationRequest.objects.filter(client=client).select_related(
+            "reservation"
+        )
+
+    def patch(self, request, *args, **kwargs):
+        reservation_request = self.get_object()
+        reservation_request.status = ReservationRequestStatuses.CANCELLED_BY_PATIENT
+        reservation_request.save(update_fields=["status"])
+        if reservation_request.reservation:
+            reservation_request.reservation.cancelled = True
+            reservation_request.reservation.cancelled_by_patient = True
+            reservation_request.reservation.save(
+                update_fields=["cancelled", "cancelled_by_patient"]
+            )
+        serializer = self.get_serializer(reservation_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
