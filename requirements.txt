@@ -68,3 +68,4 @@ vine==5.0.0
 wcwidth==0.2.6
 websockets==11.0.3
 wheel==0.43.0
+dotenv==0.9.9
