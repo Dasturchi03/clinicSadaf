@@ -5,13 +5,30 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.core.api.views import BaseViewSet
+from apps.core.pagination import BasePagination
+from apps.core.permissions import AccessPermissions
 
 from apps.core.choices import ArticleTypes
 from apps.about.models import Article
 from apps.about.api.serializers import (
+    ArticleAdminReadSerializer,
+    ArticleAdminWriteSerializer,
     ArticlePublicDetailSerializer,
     ArticlePublicListSerializer,
 )
+
+
+@extend_schema(tags=["articles"])
+class ArticleViewSet(BaseViewSet):
+    queryset = Article.objects.prefetch_related("images").order_by("-created_at")
+    permission_classes = (AccessPermissions,)
+    pagination_class = BasePagination
+    lookup_field = "article_id"
+
+    def get_serializer_class(self):
+        if self.action in ("create", "partial_update", "update"):
+            return ArticleAdminWriteSerializer
+        return ArticleAdminReadSerializer
 
 
 @extend_schema(tags=["mobile_content"])

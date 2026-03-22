@@ -1,0 +1,1098 @@
+SADAF Mobile API Documentation
+
+This file is written for the mobile developer.
+Goal: explain what each API is for, when it should be used in the mobile flow, what payload to send, what response to expect, and what non-obvious rules exist.
+
+==================================================
+1. Base Rules
+==================================================
+
+1.1. Base URL
+
+Examples below use paths only:
+- /users/login/
+- /mobile/me
+- /mobile/reservation-requests
+
+In production you will call them with the real API domain.
+
+1.2. Languages
+
+Project supports 3 languages:
+- en
+- uz
+- ru
+
+Because Django uses i18n_patterns, language can be selected by URL prefix.
+Examples:
+- /mobile/about
+- /uz/mobile/about
+- /ru/mobile/about
+
+Recommended:
+- if app is currently Uzbek, use /uz/...
+- if app is currently Russian, use /ru/...
+- if app is currently English/default, /mobile/... usually works
+
+Important:
+- translated model fields such as article title, vacancy title, work title depend on active language
+- translated validation messages and notification labels also depend on active language
+
+1.3. Authentication
+
+Authentication for protected APIs is JWT Bearer token.
+
+Headers:
+- Authorization: Bearer <access_token>
+
+Public endpoints do not require token.
+Protected endpoints do require token.
+
+1.4. Date and Time Format
+
+This project does NOT consistently use ISO date in mobile booking APIs.
+
+Important formats:
+- date: DD-MM-YYYY
+- time: HH:MM
+- datetime in many responses: DD-MM-YYYYTHH:MM
+
+Examples:
+- date: "22-03-2026"
+- time: "14:30"
+
+Do not send "2026-03-22" to reservation-related APIs unless that endpoint explicitly accepts it.
+For booking flow, use DD-MM-YYYY.
+
+1.5. General Success / Error Behavior
+
+- Successful GET usually returns JSON object or JSON array
+- List APIs may return paginated response if page is provided
+- Validation errors usually return DRF error object
+- Some older admin APIs may have inconsistent response shape, but mobile APIs are more consistent
+
+==================================================
+2. Auth Flow
+==================================================
+
+2.1. Login
+
+Endpoint:
+- POST /users/login/
+
+Purpose:
+- authenticate existing user
+- returns access and refresh tokens
+- mobile must use returned access token for protected APIs
+
+Typical payload:
+{
+  "username": "patient.portal.01",
+  "password": "mock_patient_123"
+}
+
+Response notes:
+- access token contains extra claims:
+  - username
+  - user_id
+  - client_id
+  - user_fullname
+  - user_image
+
+Use flow:
+1. User enters login/password
+2. Mobile calls /users/login/
+3. Save access and refresh tokens
+4. Use access token for /mobile/... protected endpoints
+5. When access expires, refresh it
+
+2.2. Token Refresh
+
+Endpoint:
+- POST /users/token/refresh
+
+Payload:
+{
+  "refresh": "<refresh_token>"
+}
+
+Purpose:
+- get new access token without forcing user to login again
+
+==================================================
+3. Mobile Profile / Cabinet
+==================================================
+
+3.1. Get My Profile
+
+Endpoint:
+- GET /mobile/me
+
+Auth:
+- required
+
+Purpose:
+- fetch current client profile
+- this is usually one of the first protected calls after login
+
+Response main fields:
+- client_id
+- username
+- full_name
+- client_firstname
+- client_lastname
+- client_father_name
+- client_birthdate
+- client_gender
+- client_citizenship
+- client_address
+- client_telegram
+- client_type
+- client_balance
+- cashback_balance
+- referral_code
+- loyalty_tier
+- loyalty_tier_label
+- total_spent_amount
+- cashback_percent
+- note
+- phone
+
+Important notes:
+- client_balance is old CRM balance logic
+- cashback_balance is loyalty cashback balance
+- these are not the same thing
+- referral_code may be auto-generated if missing
+
+3.2. Update My Profile
+
+Endpoint:
+- PATCH /mobile/me
+
+Auth:
+- required
+
+Purpose:
+- update current client profile
+
+Allowed payload fields:
+{
+  "client_firstname": "Ali",
+  "client_lastname": "Valiyev",
+  "client_father_name": "Karimovich",
+  "client_birthdate": "15-09-1998",
+  "client_gender": "Male",
+  "client_citizenship": "UZ",
+  "client_address": "Tashkent",
+  "client_telegram": "@ali",
+  "note": "string",
+  "phone": "+998901112233"
+}
+
+Important notes:
+- phone updates both client public phone and linked user public phone
+- use DD-MM-YYYY for birthdate
+
+==================================================
+4. Mobile Dashboard / Loyalty / Status
+==================================================
+
+4.1. Mobile Dashboard
+
+Endpoint:
+- GET /mobile/dashboard
+
+Auth:
+- required
+
+Purpose:
+- single entry-point for mobile home screen
+- gives short summary instead of forcing many separate API calls
+
+Response sections:
+- profile
+- counters
+- loyalty
+- next_reservation
+
+Counters currently include:
+- active_reservations
+- active_treatments
+- unread_notifications
+- referrals_count
+
+next_reservation contains:
+- reservation_id
+- doctor_name
+- service_title
+- date
+- start_time
+- end_time
+
+Use flow:
+1. Home screen opens
+2. Call /mobile/dashboard
+3. Render greeting/profile block, counters, cashback block, next appointment block
+
+4.2. Mobile Status
+
+Endpoint:
+- GET /mobile/status
+
+Auth:
+- required
+
+Purpose:
+- data for "My status" screen
+- shows current loyalty tier and progress to next tier
+
+Response main fields:
+- client_id
+- full_name
+- loyalty_tier
+- current_tier_label
+- cashback_balance
+- referral_code
+- cashback_percent
+- progress
+
+progress contains:
+- current_tier
+- next_tier
+- next_tier_label
+- goals
+
+Each goal currently has:
+- code
+- label
+- current_value
+- target_value
+- unit
+- is_done
+
+Important note:
+- current tier rules are intentionally simple for now
+- later business may change them
+
+4.3. Loyalty Summary
+
+Endpoint:
+- GET /mobile/loyalty
+
+Auth:
+- required
+
+Purpose:
+- cashback/referral screen summary
+
+Response:
+- client_id
+- referral_code
+- referred_by
+- referred_by_name
+- referrals_count
+- loyalty_tier
+- loyalty_tier_label
+- cashback_balance
+- total_spent_amount
+- cashback_percent
+
+4.4. Cashback History
+
+Endpoint:
+- GET /mobile/cashback/history
+
+Auth:
+- required
+
+Purpose:
+- show cashback ledger/history
+
+Response item fields:
+- entry_id
+- entry_type
+- entry_type_label
+- amount
+- balance_after
+- note
+- related_client_name
+- created_at
+
+4.5. Apply Referral Code
+
+Endpoint:
+- POST /mobile/referral/apply-code
+
+Auth:
+- required
+
+Purpose:
+- current client enters another client’s referral code
+- if valid, both sides receive referral bonus
+
+Payload:
+{
+  "referral_code": "SADAF-UK98746"
+}
+
+Important logic:
+- client cannot apply their own code
+- client cannot apply a referral code twice
+- if success:
+  - current client gets referral bonus cashback
+  - code owner also gets referral bonus cashback
+
+==================================================
+5. Public Content APIs
+==================================================
+
+These endpoints do not require auth.
+
+5.1. About
+
+Endpoint:
+- GET /mobile/about
+
+Purpose:
+- fetch grouped informational content for About pages
+
+Response groups:
+- general_info
+- achievements
+- laboratory
+- comments
+
+Each item usually contains:
+- article_id
+- article_type
+- article_type_display
+- article_title
+- article_body
+- cover_image
+- created_at
+
+5.2. Articles
+
+Endpoints:
+- GET /mobile/articles
+- GET /mobile/articles/{id}
+
+Purpose:
+- public article list and detail
+
+Query params for list:
+- article_type
+- q
+
+Use flow:
+- article list screen -> GET /mobile/articles
+- article detail screen -> GET /mobile/articles/{id}
+
+5.3. News
+
+Endpoints:
+- GET /mobile/news
+- GET /mobile/news/{id}
+
+Purpose:
+- public news list/detail
+- technically uses the same Article model, but filtered to article_type=news
+
+5.4. Services
+
+Endpoints:
+- GET /mobile/services
+- GET /mobile/services/{id}
+
+Purpose:
+- show services in mobile app
+- service selection inside booking flow
+
+Query params:
+- doctor_id
+- category
+- q
+
+Important logic:
+- when doctor_id is given, services are filtered to doctor specialization-compatible services
+
+Main response fields:
+- work_id
+- work_title
+- category
+- specialization
+- basic price fields if serializer includes them
+
+Recommendation:
+- in reservation flow, after doctor is selected, call /mobile/services?doctor_id={doctor_id}
+
+==================================================
+6. Vacancies APIs
+==================================================
+
+6.1. Public Vacancy List / Detail
+
+Endpoints:
+- GET /mobile/vacancies
+- GET /mobile/vacancies/{id}
+
+Auth:
+- not required
+
+Purpose:
+- public vacancy browsing in mobile app
+
+Important note:
+- only active vacancies are shown here
+- mobile/public endpoint is read-only
+- vacancy creation/update/deletion belongs to CRM/admin side, not mobile side
+
+6.2. Vacancy Apply
+
+Endpoint:
+- POST /mobile/vacancies/apply
+
+Auth:
+- not required
+
+Purpose:
+- send vacancy application from mobile/public side
+
+Content type:
+- multipart/form-data
+
+Payload fields:
+- vacancy
+- first_name
+- last_name
+- middle_name
+- phone
+- email
+- address
+- birth_date
+- gender
+- marital_status
+- message
+- resume_file
+
+Important notes:
+- resume_file is required
+- allowed file extensions:
+  - pdf
+  - doc
+  - docx
+- max resume size:
+  - 10 MB
+- inactive vacancy cannot receive application
+
+==================================================
+7. Doctor / Booking Foundation
+==================================================
+
+Reservation is the most important mobile flow in this project.
+
+There are two frontend UX variants in Figma, but backend logic is shared:
+- choose doctor
+- choose date
+- choose slot
+- choose service
+- create reservation request
+- clinic approves
+- client may confirm
+- reservation becomes visible in my reservations
+
+7.1. Doctor List
+
+Endpoint:
+- GET /mobile/reservation/doctors
+
+Auth:
+- not required
+
+Purpose:
+- list doctors for booking screen
+
+Query params:
+- specialization
+
+Response fields:
+- id
+- user_firstname
+- user_lastname
+- full_name
+- user_specialization
+- user_image
+
+7.2. Doctor Detail
+
+Endpoint:
+- GET /mobile/reservation/doctors/{id}
+
+Auth:
+- not required
+
+Purpose:
+- doctor detail screen
+
+Response may include:
+- doctor basic info
+- specialization list
+- image
+
+7.3. Doctor Slots
+
+Endpoint:
+- GET /mobile/reservation/doctors/{id}/slots
+
+Auth:
+- not required
+
+Required query params:
+- date=DD-MM-YYYY
+
+Optional query params:
+- slot_minutes=60
+
+Example:
+- /mobile/reservation/doctors/2/slots?date=22-03-2026&slot_minutes=60
+
+Purpose:
+- get time slots for selected doctor and selected date
+
+Slot item fields:
+- start
+- end
+- is_booked
+- is_available
+
+Important logic:
+- doctor schedule is checked
+- lunch break is checked
+- existing confirmed reservations are checked
+- this endpoint is the safest source for available slot UI
+
+==================================================
+8. Reservation Request Flow
+==================================================
+
+This is the core mobile booking flow.
+
+Business meaning:
+- mobile user does not directly create final reservation
+- mobile creates ReservationRequest first
+- clinic reviews it
+- clinic approves or cancels it
+- if approved, Reservation is created
+- then client may confirm from mobile if frontend requires that step
+
+8.1. Create Reservation Request
+
+Endpoint:
+- POST /mobile/reservation-requests
+
+Auth:
+- required
+
+Payload:
+{
+  "flutter_reservation_id": "string",
+  "doctor_id": 2,
+  "reservation_work_id": 5,
+  "note": "string",
+  "date": "22-03-2026",
+  "time": "14:00",
+  "slot_minutes": 60
+}
+
+Field explanations:
+- flutter_reservation_id
+  - mobile-generated unique id from app side
+  - purpose: app can match its local booking action with backend-created request
+  - useful for retry logic, client-side tracking, analytics, or temporary local state
+  - backend stores it in ReservationRequest.flutter_reservation_id
+  - recommended: always send a unique string, for example UUID
+- doctor_id
+  - selected doctor primary key
+- reservation_work_id
+  - selected service/work primary key
+- note
+  - optional text from client
+- date
+  - booking date in DD-MM-YYYY
+- time
+  - slot start time in HH:MM
+- slot_minutes
+  - requested slot length in minutes
+  - default is 60
+  - minimum is normalized to 15
+
+Important validation logic:
+- user must be authenticated
+- authenticated user must be linked to a Client
+- doctor must be available
+- selected time must not conflict with working hours/lunch/existing reservations
+- selected time must not conflict with active pending request in that slot
+- selected service must belong to doctor specialization if service has specialization restriction
+
+What happens after success:
+1. ReservationRequest is created with status=draft
+2. doctor_name is copied and stored
+3. notification is created for doctor side
+4. mobile should show "waiting for clinic" state
+
+8.2. My Reservation Request List
+
+Endpoint:
+- GET /mobile/reservation-requests
+
+Auth:
+- required
+
+Purpose:
+- show all current client request records
+
+Useful response fields:
+- id
+- flutter_reservation_id
+- doctor
+- reservation_work
+- doctor_name
+- status
+- status_code
+- status_label
+- ui_state
+- next_action
+- can_cancel
+- can_confirm
+- reservation_id
+- note
+- date
+- time
+
+Important meaning of helper fields:
+- status_code
+  - raw backend status key
+  - examples: draft, approved, approved_by_patient, cancelled
+- status_label
+  - translated human-readable label
+- ui_state
+  - frontend-friendly short state:
+  - pending
+  - success
+  - cancelled
+- next_action
+  - what UI usually should do next
+  - wait_for_clinic
+  - confirm_reservation
+  - open_reservation
+  - open_requests
+- can_cancel
+  - if true, show cancel action
+- can_confirm
+  - if true, show confirm action
+- reservation_id
+  - appears if clinic already created real Reservation
+
+8.3. Reservation Request Detail
+
+Endpoint:
+- GET /mobile/reservation-requests/{id}
+
+Auth:
+- required
+
+Purpose:
+- detail screen for one request
+
+8.4. Cancel Reservation Request
+
+Endpoint:
+- PATCH /mobile/reservation-requests/{id}/cancel
+
+Auth:
+- required
+
+Purpose:
+- client cancels own request
+
+What happens:
+- request status becomes cancelled_by_patient
+- if Reservation already exists, that reservation is also marked cancelled
+- doctor may receive notification
+
+8.5. Confirm Reservation Request
+
+Endpoint:
+- PATCH /mobile/reservation-requests/{id}/confirm
+
+Auth:
+- required
+
+Purpose:
+- confirm request after clinic approved it
+
+Important rule:
+- this only works if request status is approved and real Reservation already exists
+
+What happens:
+- request status becomes approved_by_patient
+- Reservation itself already exists before this call
+
+==================================================
+9. My Reservations
+==================================================
+
+9.1. Reservation List
+
+Endpoint:
+- GET /mobile/reservations
+
+Auth:
+- required
+
+Purpose:
+- show confirmed reservations of current client
+
+Query params:
+- status=active
+- status=history
+- status=cancelled
+
+Response fields:
+- reservation_id
+- reservation_doctor
+- reservation_work
+- reservation_notes
+- reservation_date
+- reservation_start_time
+- reservation_end_time
+- is_initial
+- cancelled
+- cancelled_by_patient
+- request_status
+- created_at
+
+Flow meaning:
+- use this for "My appointments" list
+- active = future/current reservations
+- history = past finished timeline from reservation perspective
+- cancelled = cancelled reservations
+
+9.2. Reservation Detail
+
+Endpoint:
+- GET /mobile/reservations/{id}
+
+Auth:
+- required
+
+Purpose:
+- full reservation detail for current client
+
+==================================================
+10. Treatments
+==================================================
+
+These APIs represent treatment/medical card side, not just booking.
+
+10.1. Treatment List
+
+Endpoint:
+- GET /mobile/treatments
+
+Auth:
+- required
+
+Purpose:
+- show client’s treatment cards
+
+Query params:
+- status=active
+- status=in_progress
+- status=paid
+
+Response fields:
+- card_id
+- card_price
+- card_discount_price
+- card_discount_percent
+- card_is_done
+- card_is_paid
+- card_finished_at
+- doctors
+- paid_amount
+- remaining_amount
+- status
+- card_created_at
+
+Status meaning:
+- active
+  - card not paid and not done yet
+- in_progress
+  - card done but not fully paid according to current serializer logic
+- paid
+  - card paid
+
+10.2. Treatment Detail
+
+Endpoint:
+- GET /mobile/treatments/{id}
+
+Auth:
+- required
+
+Purpose:
+- show treatment card details, stages, actions, payments, credits
+
+Detail includes:
+- client
+- stage
+- action_stage
+- credits
+- transactions
+
+Useful for screens like:
+- my treatment plan
+- treatment details
+- paid/unpaid treatment card detail
+
+==================================================
+11. Notifications
+==================================================
+
+11.1. Notification List
+
+Endpoint:
+- GET /mobile/notifications
+
+Auth:
+- required
+
+Purpose:
+- list user notifications
+
+Main fields:
+- notification_id
+- notification_type
+- notification_message
+- notification_reservation
+- is_read
+- status_label
+- next_action
+- payload
+- created_at
+
+Important fields:
+- status_label
+  - translated short label for UI
+- next_action
+  - usually:
+  - open_reservation
+  - open_notifications
+- payload
+  - ready-to-use object for frontend navigation
+  - contains target_type, target_id, doctor, service, client, date/time, cancelled
+
+11.2. Unread Count
+
+Endpoint:
+- GET /mobile/notifications/unread-count
+
+Auth:
+- required
+
+Purpose:
+- notification badge count on home screen or tab bar
+
+11.3. Mark Single as Read
+
+Endpoint:
+- PATCH /mobile/notifications/{id}/read
+
+Auth:
+- required
+
+Purpose:
+- mark one notification as read
+
+11.4. Mark All as Read
+
+Endpoint:
+- PATCH /mobile/notifications/read-all
+
+Auth:
+- required
+
+Purpose:
+- clear badge state in one action
+
+==================================================
+12. Recommended Mobile Flow
+==================================================
+
+12.1. App Start
+
+1. User logs in via /users/login/
+2. Save access + refresh token
+3. Call /mobile/dashboard
+4. Optionally call /mobile/me if full profile screen opens
+
+12.2. Booking Flow
+
+1. Call /mobile/reservation/doctors
+2. User selects doctor
+3. Call /mobile/services?doctor_id={doctor_id}
+4. User selects service
+5. Call /mobile/reservation/doctors/{doctor_id}/slots?date=DD-MM-YYYY
+6. User selects slot
+7. Call POST /mobile/reservation-requests
+8. Show waiting state from request status
+9. Poll request list/detail or use notifications
+10. If approved and can_confirm=true, call PATCH /mobile/reservation-requests/{id}/confirm
+11. Open /mobile/reservations or /mobile/reservations/{reservation_id}
+
+12.3. Loyalty / Referral Flow
+
+1. Open /mobile/loyalty or /mobile/status
+2. Show referral code and cashback
+3. If user enters someone else’s code, call /mobile/referral/apply-code
+4. Show updated cashback and referrals count
+
+12.4. Notifications Flow
+
+1. Home badge count -> /mobile/notifications/unread-count
+2. Notification list -> /mobile/notifications
+3. Open item -> inspect next_action + payload
+4. Mark read -> /mobile/notifications/{id}/read
+
+==================================================
+13. Important Non-Obvious Notes
+==================================================
+
+13.1. flutter_reservation_id
+
+This is not the final reservation id.
+
+It is a mobile-side tracking id for reservation request creation.
+Backend stores it, but final confirmed reservation still gets its own reservation_id.
+
+Recommended use:
+- generate UUID on mobile before request creation
+- save it locally
+- if app wants to reconcile local pending state with server state, this field helps
+
+13.2. doctor_id vs reservation_id vs reservation_request id
+
+- doctor_id
+  - selected doctor
+- reservation request id
+  - id of pending/approval request
+- reservation_id
+  - real confirmed reservation record
+
+Do not mix them.
+
+13.3. Booking date format
+
+Reservation APIs expect:
+- "22-03-2026"
+not
+- "2026-03-22"
+
+If mobile sends ISO date here, validation may fail.
+
+13.4. slot_minutes
+
+Backend normalizes it.
+- default = 60
+- less than 15 becomes 15
+
+Recommended:
+- keep frontend values aligned with slot UI
+- if your UI offers 60-minute slots, always send 60
+
+13.5. Mobile public endpoints are read-only
+
+- /mobile/articles
+- /mobile/news
+- /mobile/vacancies
+
+These are for reading only.
+Creation and admin management belong to CRM/admin APIs.
+
+13.6. Loyalty is intentionally simple for now
+
+Current tier/cashback logic is intentionally lightweight.
+Business rules can change later.
+Frontend should avoid hardcoding assumptions beyond response values.
+
+==================================================
+14. Quick Endpoint Index
+==================================================
+
+Auth:
+- POST /users/login/
+- POST /users/token/refresh
+
+Profile / Dashboard:
+- GET /mobile/dashboard
+- GET /mobile/me
+- PATCH /mobile/me
+- GET /mobile/status
+- GET /mobile/loyalty
+- GET /mobile/cashback/history
+- POST /mobile/referral/apply-code
+
+Content:
+- GET /mobile/about
+- GET /mobile/articles
+- GET /mobile/articles/{id}
+- GET /mobile/news
+- GET /mobile/news/{id}
+- GET /mobile/services
+- GET /mobile/services/{id}
+
+Vacancies:
+- GET /mobile/vacancies
+- GET /mobile/vacancies/{id}
+- POST /mobile/vacancies/apply
+
+Booking:
+- GET /mobile/reservation/doctors
+- GET /mobile/reservation/doctors/{id}
+- GET /mobile/reservation/doctors/{id}/slots
+- GET /mobile/reservation-requests
+- POST /mobile/reservation-requests
+- GET /mobile/reservation-requests/{id}
+- PATCH /mobile/reservation-requests/{id}/cancel
+- PATCH /mobile/reservation-requests/{id}/confirm
+- GET /mobile/reservations
+- GET /mobile/reservations/{id}
+
+Treatments:
+- GET /mobile/treatments
+- GET /mobile/treatments/{id}
+
+Notifications:
+- GET /mobile/notifications
+- GET /mobile/notifications/unread-count
+- PATCH /mobile/notifications/{id}/read
+- PATCH /mobile/notifications/read-all
+
+==================================================
+15. Final Recommendation For Mobile Team
+==================================================
+
+For easiest integration, build screens in this order:
+1. Login + token refresh
+2. Dashboard
+3. Doctor list + slot selection
+4. Service selection
+5. Create reservation request
+6. My requests + My reservations
+7. Notifications
+8. Treatments
+9. Loyalty / referral / status
+10. Articles / news / vacancies
+
+If anything in swagger and this document disagree, trust the current backend code first and clarify with backend before hardcoding assumptions.

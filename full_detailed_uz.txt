@@ -1,0 +1,1099 @@
+SADAF Mobile API Hujjati
+
+Bu fayl mobile dasturchi uchun yozildi.
+Maqsad: har bir API nima uchun kerakligini, mobile flow ichida qachon ishlatilishini, qanday payload yuborilishini, qanday response kelishini va ko'zga tashlanmaydigan muhim jihatlarni sodda tushuntirish.
+
+==================================================
+1. Asosiy Qoidalar
+==================================================
+
+1.1. Base URL
+
+Quyidagi misollarda faqat path ko'rsatilgan:
+- /users/login/
+- /mobile/me
+- /mobile/reservation-requests
+
+Production holatda bular haqiqiy API domeni bilan birga chaqiriladi.
+
+1.2. Tillar
+
+Loyiha 3 tilni qo'llab-quvvatlaydi:
+- en
+- uz
+- ru
+
+Django `i18n_patterns` ishlatayotgani sababli til URL prefix orqali tanlanishi mumkin.
+Misollar:
+- /mobile/about
+- /uz/mobile/about
+- /ru/mobile/about
+
+Tavsiya:
+- ilova hozir o'zbek tilida bo'lsa, /uz/... ishlating
+- ilova hozir rus tilida bo'lsa, /ru/... ishlating
+- ilova ingliz/default holatda bo'lsa, odatda /mobile/... ham ishlaydi
+
+Muhim:
+- article title, vacancy title, work title kabi translate bo'ladigan fieldlar aktiv tilga bog'liq
+- validation message va notification label lar ham aktiv tilga bog'liq
+
+1.3. Authentication
+
+Himoyalangan API lar JWT Bearer token orqali ishlaydi.
+
+Header:
+- Authorization: Bearer <access_token>
+
+Public endpoint lar token talab qilmaydi.
+Protected endpoint lar token talab qiladi.
+
+1.4. Sana va Vaqt Formati
+
+Bu project mobile booking API larida ISO sanani hamma joyda bir xil ishlatmaydi.
+
+Muhim formatlar:
+- date: DD-MM-YYYY
+- time: HH:MM
+- ko'p response lardagi datetime: DD-MM-YYYYTHH:MM
+
+Misollar:
+- date: "22-03-2026"
+- time: "14:30"
+
+Reservation bilan bog'liq API larga "2026-03-22" yubormang, agar o'sha endpoint ochiqchasiga shu formatni qabul qilishi ko'rsatilmagan bo'lsa.
+Booking flow uchun DD-MM-YYYY ishlating.
+
+1.5. Umumiy Success / Error Holati
+
+- Successful GET odatda JSON object yoki JSON array qaytaradi
+- page param berilsa list API lar pagination bilan kelishi mumkin
+- Validation error lar odatda DRF error object ko'rinishida bo'ladi
+- Ba'zi eski admin API lar response shape bo'yicha bir xil emas, lekin mobile API lar nisbatan tartibli
+
+==================================================
+2. Auth Flow
+==================================================
+
+2.1. Login
+
+Endpoint:
+- POST /users/login/
+
+Maqsad:
+- mavjud user ni autentifikatsiya qilish
+- access va refresh token qaytaradi
+- mobile keyingi protected API lar uchun access token ishlatadi
+
+Odatdagi payload:
+{
+  "username": "patient.portal.01",
+  "password": "mock_patient_123"
+}
+
+Response bo'yicha eslatma:
+- access token ichiga qo'shimcha claim lar joylangan:
+  - username
+  - user_id
+  - client_id
+  - user_fullname
+  - user_image
+
+Ishlatish tartibi:
+1. User login va parol kiritadi
+2. Mobile /users/login/ ga so'rov yuboradi
+3. Access va refresh tokenlarni saqlaydi
+4. Protected /mobile/... endpoint larda access token ishlatadi
+5. Access token muddati tugasa refresh orqali yangilaydi
+
+2.2. Token Refresh
+
+Endpoint:
+- POST /users/token/refresh
+
+Payload:
+{
+  "refresh": "<refresh_token>"
+}
+
+Maqsad:
+- userni qayta login qildirmasdan yangi access token olish
+
+==================================================
+3. Mobile Profil / Cabinet
+==================================================
+
+3.1. Mening Profilim
+
+Endpoint:
+- GET /mobile/me
+
+Auth:
+- required
+
+Maqsad:
+- joriy client profilini olish
+- login dan keyin birinchi protected so'rovlardan biri shu bo'lishi mumkin
+
+Response asosiy fieldlari:
+- client_id
+- username
+- full_name
+- client_firstname
+- client_lastname
+- client_father_name
+- client_birthdate
+- client_gender
+- client_citizenship
+- client_address
+- client_telegram
+- client_type
+- client_balance
+- cashback_balance
+- referral_code
+- loyalty_tier
+- loyalty_tier_label
+- total_spent_amount
+- cashback_percent
+- note
+- phone
+
+Muhim eslatmalar:
+- client_balance eski CRM balansi logikasi
+- cashback_balance loyalty cashback balansi
+- bu ikkalasi bir xil narsa emas
+- referral_code bo'lmasa backend uni avtomatik yaratishi mumkin
+
+3.2. Profilni Yangilash
+
+Endpoint:
+- PATCH /mobile/me
+
+Auth:
+- required
+
+Maqsad:
+- joriy client profilini yangilash
+
+Ruxsat etilgan payload fieldlari:
+{
+  "client_firstname": "Ali",
+  "client_lastname": "Valiyev",
+  "client_father_name": "Karimovich",
+  "client_birthdate": "15-09-1998",
+  "client_gender": "Male",
+  "client_citizenship": "UZ",
+  "client_address": "Tashkent",
+  "client_telegram": "@ali",
+  "note": "string",
+  "phone": "+998901112233"
+}
+
+Muhim eslatmalar:
+- phone yangilanganda client public phone va user public phone ikkalasi ham sinxron yangilanadi
+- birthdate uchun DD-MM-YYYY formatdan foydalaning
+
+==================================================
+4. Mobile Dashboard / Loyalty / Status
+==================================================
+
+4.1. Mobile Dashboard
+
+Endpoint:
+- GET /mobile/dashboard
+
+Auth:
+- required
+
+Maqsad:
+- mobile home screen uchun yagona summary endpoint
+- ko'p mayda API chaqirish o'rniga qisqa umumiy ma'lumot beradi
+
+Response bo'limlari:
+- profile
+- counters
+- loyalty
+- next_reservation
+
+Hozirgi counters:
+- active_reservations
+- active_treatments
+- unread_notifications
+- referrals_count
+
+next_reservation ichida:
+- reservation_id
+- doctor_name
+- service_title
+- date
+- start_time
+- end_time
+
+Flow:
+1. Home screen ochiladi
+2. /mobile/dashboard chaqiriladi
+3. Greeting/profile block, counters, cashback block va yaqin qabul bloklari chiziladi
+
+4.2. Mening Statusim
+
+Endpoint:
+- GET /mobile/status
+
+Auth:
+- required
+
+Maqsad:
+- "Mening statusim" ekrani uchun ma'lumot
+- hozirgi tier va keyingi tier ga o'tish progressini ko'rsatadi
+
+Response asosiy fieldlari:
+- client_id
+- full_name
+- loyalty_tier
+- current_tier_label
+- cashback_balance
+- referral_code
+- cashback_percent
+- progress
+
+progress ichida:
+- current_tier
+- next_tier
+- next_tier_label
+- goals
+
+Har bir goal ichida:
+- code
+- label
+- current_value
+- target_value
+- unit
+- is_done
+
+Muhim eslatma:
+- hozirgi tier qoidalari ataylab soddalashtirilgan
+- keyin business talabiga qarab o'zgarishi mumkin
+
+4.3. Loyalty Summary
+
+Endpoint:
+- GET /mobile/loyalty
+
+Auth:
+- required
+
+Maqsad:
+- cashback/referral ekrani uchun summary ma'lumot
+
+Response:
+- client_id
+- referral_code
+- referred_by
+- referred_by_name
+- referrals_count
+- loyalty_tier
+- loyalty_tier_label
+- cashback_balance
+- total_spent_amount
+- cashback_percent
+
+4.4. Cashback History
+
+Endpoint:
+- GET /mobile/cashback/history
+
+Auth:
+- required
+
+Maqsad:
+- cashback tarixi / ledger ni ko'rsatish
+
+Response item fieldlari:
+- entry_id
+- entry_type
+- entry_type_label
+- amount
+- balance_after
+- note
+- related_client_name
+- created_at
+
+4.5. Referral Kodni Kiritish
+
+Endpoint:
+- POST /mobile/referral/apply-code
+
+Auth:
+- required
+
+Maqsad:
+- joriy client boshqa client ning referral kodini kiritadi
+- agar kod to'g'ri bo'lsa, ikkala tomonga ham referral bonus beriladi
+
+Payload:
+{
+  "referral_code": "SADAF-UK98746"
+}
+
+Muhim logika:
+- client o'z kodini ishlata olmaydi
+- client referral kodni ikki marta ishlata olmaydi
+- muvaffaqiyatli bo'lsa:
+  - joriy client cashback referral bonus oladi
+  - kod egasi ham cashback referral bonus oladi
+
+==================================================
+5. Public Content API lar
+==================================================
+
+Bu endpoint lar token talab qilmaydi.
+
+5.1. Biz Haqimizda
+
+Endpoint:
+- GET /mobile/about
+
+Maqsad:
+- About sahifalari uchun guruhlangan kontentni olish
+
+Response group lar:
+- general_info
+- achievements
+- laboratory
+- comments
+
+Har bir item odatda quyidagilarni o'z ichiga oladi:
+- article_id
+- article_type
+- article_type_display
+- article_title
+- article_body
+- cover_image
+- created_at
+
+5.2. Maqolalar
+
+Endpoint lar:
+- GET /mobile/articles
+- GET /mobile/articles/{id}
+
+Maqsad:
+- public article list va detail
+
+List query param lari:
+- article_type
+- q
+
+Flow:
+- article list screen -> GET /mobile/articles
+- article detail screen -> GET /mobile/articles/{id}
+
+5.3. Yangiliklar
+
+Endpoint lar:
+- GET /mobile/news
+- GET /mobile/news/{id}
+
+Maqsad:
+- public news list/detail
+- texnik jihatdan shu ham Article model, lekin article_type=news bo'yicha filter qilingan
+
+5.4. Xizmatlar
+
+Endpoint lar:
+- GET /mobile/services
+- GET /mobile/services/{id}
+
+Maqsad:
+- mobile ilovada xizmatlar ro'yxatini ko'rsatish
+- booking flow ichida service tanlash
+
+Query param lar:
+- doctor_id
+- category
+- q
+
+Muhim logika:
+- doctor_id berilsa, service lar doctor specialization ga moslab filter qilinadi
+
+Asosiy response fieldlari:
+- work_id
+- work_title
+- category
+- specialization
+- basic price fieldlari agar serializer qaytarsa
+
+Tavsiya:
+- reservation flow da doctor tanlangandan keyin /mobile/services?doctor_id={doctor_id} ni chaqiring
+
+==================================================
+6. Vacancy API lar
+==================================================
+
+6.1. Public Vacancy List / Detail
+
+Endpoint lar:
+- GET /mobile/vacancies
+- GET /mobile/vacancies/{id}
+
+Auth:
+- talab qilinmaydi
+
+Maqsad:
+- mobile ilovada public vacancy ko'rish
+
+Muhim eslatma:
+- bu yerda faqat active vacancy lar ko'rsatiladi
+- mobile/public endpoint read-only
+- vacancy yaratish, update qilish, delete qilish CRM/admin tarafida bo'ladi
+
+6.2. Vacancy Apply
+
+Endpoint:
+- POST /mobile/vacancies/apply
+
+Auth:
+- talab qilinmaydi
+
+Maqsad:
+- mobile/public tarafdan vacancy application yuborish
+
+Content type:
+- multipart/form-data
+
+Payload fieldlari:
+- vacancy
+- first_name
+- last_name
+- middle_name
+- phone
+- email
+- address
+- birth_date
+- gender
+- marital_status
+- message
+- resume_file
+
+Muhim eslatmalar:
+- resume_file majburiy
+- ruxsat etilgan fayl turlari:
+  - pdf
+  - doc
+  - docx
+- maksimal resume hajmi:
+  - 10 MB
+- inactive vacancy ga apply qilib bo'lmaydi
+
+==================================================
+7. Doktor / Booking Foundation
+==================================================
+
+Reservation bu loyihadagi eng asosiy mobile flow.
+
+Figma da booking UX ning 2 xil varianti bor, lekin backend logikasi umumiy:
+- doctor tanlash
+- sana tanlash
+- slot tanlash
+- service tanlash
+- reservation request yaratish
+- klinika tasdiqlashi
+- client xohlasa confirm qilishi
+- keyin reservation "my reservations" da ko'rinishi
+
+7.1. Doktorlar Ro'yxati
+
+Endpoint:
+- GET /mobile/reservation/doctors
+
+Auth:
+- talab qilinmaydi
+
+Maqsad:
+- booking screen uchun doctor list
+
+Query param:
+- specialization
+
+Response fieldlari:
+- id
+- user_firstname
+- user_lastname
+- full_name
+- user_specialization
+- user_image
+
+7.2. Doktor Detail
+
+Endpoint:
+- GET /mobile/reservation/doctors/{id}
+
+Auth:
+- talab qilinmaydi
+
+Maqsad:
+- doctor detail screen
+
+Response ichida bo'lishi mumkin:
+- doctor basic info
+- specialization list
+- image
+
+7.3. Doktor Slotlari
+
+Endpoint:
+- GET /mobile/reservation/doctors/{id}/slots
+
+Auth:
+- talab qilinmaydi
+
+Majburiy query param:
+- date=DD-MM-YYYY
+
+Ixtiyoriy query param:
+- slot_minutes=60
+
+Misol:
+- /mobile/reservation/doctors/2/slots?date=22-03-2026&slot_minutes=60
+
+Maqsad:
+- tanlangan doctor va tanlangan sana uchun vaqt slotlarini olish
+
+Har bir slot item ichida:
+- start
+- end
+- is_booked
+- is_available
+
+Muhim logika:
+- doctor schedule tekshiriladi
+- lunch break tekshiriladi
+- mavjud confirmed reservation lar tekshiriladi
+- slot UI uchun eng ishonchli manba shu endpoint
+
+==================================================
+8. Reservation Request Flow
+==================================================
+
+Bu mobile booking flow ning yuragi hisoblanadi.
+
+Biznes ma'nosi:
+- mobile user to'g'ridan-to'g'ri final reservation yaratmaydi
+- avval ReservationRequest yaratadi
+- klinika uni ko'rib chiqadi
+- klinika approve yoki cancel qiladi
+- approve bo'lsa, real Reservation yaratiladi
+- keyin frontend xohlasa client confirm qilishi mumkin
+
+8.1. Reservation Request Yaratish
+
+Endpoint:
+- POST /mobile/reservation-requests
+
+Auth:
+- required
+
+Payload:
+{
+  "flutter_reservation_id": "string",
+  "doctor_id": 2,
+  "reservation_work_id": 5,
+  "note": "string",
+  "date": "22-03-2026",
+  "time": "14:00",
+  "slot_minutes": 60
+}
+
+Field tushuntirishlari:
+- flutter_reservation_id
+  - mobile tomonidan generatsiya qilinadigan unique id
+  - maqsad: app local booking action ni backenddagi request bilan bog'lay oladi
+  - retry logika, client-side tracking, analytics yoki local pending state uchun foydali
+  - backend uni ReservationRequest.flutter_reservation_id fieldida saqlaydi
+  - tavsiya: har safar unique string yuboring, masalan UUID
+- doctor_id
+  - tanlangan doctor primary key si
+- reservation_work_id
+  - tanlangan service/work primary key si
+- note
+  - client yozadigan ixtiyoriy matn
+- date
+  - booking sanasi, DD-MM-YYYY formatida
+- time
+  - tanlangan slotning boshlanish vaqti, HH:MM formatida
+- slot_minutes
+  - so'ralayotgan slot uzunligi, minutlarda
+  - default 60
+  - minimum normalize qilinib 15 bo'ladi
+
+Muhim validation logikasi:
+- user authenticated bo'lishi kerak
+- authenticated user Client ga bog'langan bo'lishi kerak
+- doctor available bo'lishi kerak
+- tanlangan vaqt working hours / lunch / existing reservations bilan to'qnashmasligi kerak
+- tanlangan vaqt active pending request bilan to'qnashmasligi kerak
+- tanlangan service doctor specialization ga mos bo'lishi kerak, agar service specialization restriction ga ega bo'lsa
+
+Success bo'lgandan keyin nima bo'ladi:
+1. ReservationRequest status=draft bilan yaratiladi
+2. doctor_name nusxasi saqlanadi
+3. doctor tarafga notification yaratiladi
+4. mobile "wait_for_clinic" holatini ko'rsatishi kerak
+
+8.2. Mening Reservation Request Larim
+
+Endpoint:
+- GET /mobile/reservation-requests
+
+Auth:
+- required
+
+Maqsad:
+- joriy client ning barcha request yozuvlarini ko'rsatish
+
+Response ichidagi foydali fieldlar:
+- id
+- flutter_reservation_id
+- doctor
+- reservation_work
+- doctor_name
+- status
+- status_code
+- status_label
+- ui_state
+- next_action
+- can_cancel
+- can_confirm
+- reservation_id
+- note
+- date
+- time
+
+Helper fieldlarning ma'nosi:
+- status_code
+  - raw backend status key
+  - misollar: draft, approved, approved_by_patient, cancelled
+- status_label
+  - translate qilingan human-readable label
+- ui_state
+  - frontend uchun qisqa state:
+  - pending
+  - success
+  - cancelled
+- next_action
+  - UI keyingi nima qilishini bildiradi
+  - wait_for_clinic
+  - confirm_reservation
+  - open_reservation
+  - open_requests
+- can_cancel
+  - true bo'lsa cancel action ko'rsatish mumkin
+- can_confirm
+  - true bo'lsa confirm action ko'rsatish mumkin
+- reservation_id
+  - klinika real Reservation yaratgan bo'lsa paydo bo'ladi
+
+8.3. Reservation Request Detail
+
+Endpoint:
+- GET /mobile/reservation-requests/{id}
+
+Auth:
+- required
+
+Maqsad:
+- bitta request detail screen
+
+8.4. Reservation Request Cancel
+
+Endpoint:
+- PATCH /mobile/reservation-requests/{id}/cancel
+
+Auth:
+- required
+
+Maqsad:
+- client o'z request ini bekor qiladi
+
+Natijada:
+- request status cancelled_by_patient bo'ladi
+- agar Reservation allaqachon yaratilgan bo'lsa, o'sha reservation ham cancelled bo'ladi
+- doctor notification olishi mumkin
+
+8.5. Reservation Request Confirm
+
+Endpoint:
+- PATCH /mobile/reservation-requests/{id}/confirm
+
+Auth:
+- required
+
+Maqsad:
+- klinika approve qilgandan keyin client tasdiqlaydi
+
+Muhim qoida:
+- bu faqat request status approved bo'lsa va real Reservation allaqachon yaratilgan bo'lsa ishlaydi
+
+Natijada:
+- request status approved_by_patient bo'ladi
+- Reservation o'zi bu so'rovdan oldin yaratilgan bo'ladi
+
+==================================================
+9. Mening Reservation Larim
+==================================================
+
+9.1. Reservation List
+
+Endpoint:
+- GET /mobile/reservations
+
+Auth:
+- required
+
+Maqsad:
+- joriy client ning confirmed reservation larini ko'rsatish
+
+Query param lar:
+- status=active
+- status=history
+- status=cancelled
+
+Response fieldlari:
+- reservation_id
+- reservation_doctor
+- reservation_work
+- reservation_notes
+- reservation_date
+- reservation_start_time
+- reservation_end_time
+- is_initial
+- cancelled
+- cancelled_by_patient
+- request_status
+- created_at
+
+Flow ma'nosi:
+- "Mening qabullarim" list screen uchun ishlatiladi
+- active = hozirgi yoki kelajakdagi reservation lar
+- history = o'tgan reservation lar
+- cancelled = bekor qilingan reservation lar
+
+9.2. Reservation Detail
+
+Endpoint:
+- GET /mobile/reservations/{id}
+
+Auth:
+- required
+
+Maqsad:
+- joriy client uchun bitta reservation ning to'liq detaili
+
+==================================================
+10. Treatments
+==================================================
+
+Bu API lar booking emas, davolanish / medical card tarafini ko'rsatadi.
+
+10.1. Treatment List
+
+Endpoint:
+- GET /mobile/treatments
+
+Auth:
+- required
+
+Maqsad:
+- client ning treatment card larini ko'rsatish
+
+Query param lar:
+- status=active
+- status=in_progress
+- status=paid
+
+Response fieldlari:
+- card_id
+- card_price
+- card_discount_price
+- card_discount_percent
+- card_is_done
+- card_is_paid
+- card_finished_at
+- doctors
+- paid_amount
+- remaining_amount
+- status
+- card_created_at
+
+Status ma'nosi:
+- active
+  - card hali paid ham emas, done ham emas
+- in_progress
+  - hozirgi serializer logikasiga ko'ra card done bo'lgan, lekin hali to'liq paid emas
+- paid
+  - card paid
+
+10.2. Treatment Detail
+
+Endpoint:
+- GET /mobile/treatments/{id}
+
+Auth:
+- required
+
+Maqsad:
+- treatment card detail, stage, action, payment, creditlarni ko'rsatish
+
+Detail ichida:
+- client
+- stage
+- action_stage
+- credits
+- transactions
+
+Qaysi ekranlarda foydali:
+- mening davolanishim
+- treatment details
+- paid/unpaid treatment card detail
+
+==================================================
+11. Notifications
+==================================================
+
+11.1. Notification List
+
+Endpoint:
+- GET /mobile/notifications
+
+Auth:
+- required
+
+Maqsad:
+- user notification lar ro'yxati
+
+Asosiy fieldlar:
+- notification_id
+- notification_type
+- notification_message
+- notification_reservation
+- is_read
+- status_label
+- next_action
+- payload
+- created_at
+
+Muhim fieldlar:
+- status_label
+  - translate qilingan qisqa label
+- next_action
+  - odatda:
+  - open_reservation
+  - open_notifications
+- payload
+  - frontend navigation uchun tayyor object
+  - target_type, target_id, doctor, service, client, date/time, cancelled kabi fieldlarni o'z ichiga oladi
+
+11.2. Unread Count
+
+Endpoint:
+- GET /mobile/notifications/unread-count
+
+Auth:
+- required
+
+Maqsad:
+- home screen yoki tab bar badge count
+
+11.3. Bitta Notification ni Read Qilish
+
+Endpoint:
+- PATCH /mobile/notifications/{id}/read
+
+Auth:
+- required
+
+Maqsad:
+- bitta notification ni read qilish
+
+11.4. Hammasini Read Qilish
+
+Endpoint:
+- PATCH /mobile/notifications/read-all
+
+Auth:
+- required
+
+Maqsad:
+- badge state ni birdan tozalash
+
+==================================================
+12. Tavsiya Etilgan Mobile Flow
+==================================================
+
+12.1. App Start
+
+1. User /users/login/ orqali login qiladi
+2. Access + refresh token saqlanadi
+3. /mobile/dashboard chaqiriladi
+4. To'liq profile screen ochilsa /mobile/me chaqiriladi
+
+12.2. Booking Flow
+
+1. /mobile/reservation/doctors chaqiriladi
+2. User doctor tanlaydi
+3. /mobile/services?doctor_id={doctor_id} chaqiriladi
+4. User service tanlaydi
+5. /mobile/reservation/doctors/{doctor_id}/slots?date=DD-MM-YYYY chaqiriladi
+6. User slot tanlaydi
+7. POST /mobile/reservation-requests chaqiriladi
+8. Request status asosida kutish holati ko'rsatiladi
+9. Request list/detail poll qilinadi yoki notification lar ishlatiladi
+10. Agar approved va can_confirm=true bo'lsa PATCH /mobile/reservation-requests/{id}/confirm chaqiriladi
+11. /mobile/reservations yoki /mobile/reservations/{reservation_id} ochiladi
+
+12.3. Loyalty / Referral Flow
+
+1. /mobile/loyalty yoki /mobile/status ochiladi
+2. Referral code va cashback ko'rsatiladi
+3. User boshqa birovning referral kodini kiritsa /mobile/referral/apply-code chaqiriladi
+4. Yangilangan cashback va referrals count ko'rsatiladi
+
+12.4. Notifications Flow
+
+1. Home badge count -> /mobile/notifications/unread-count
+2. Notification list -> /mobile/notifications
+3. Notification ochilganda next_action + payload ga qaraladi
+4. Read qilish -> /mobile/notifications/{id}/read
+
+==================================================
+13. Ko'zga Tashlanmaydigan Muhim Eslatmalar
+==================================================
+
+13.1. flutter_reservation_id
+
+Bu final reservation id emas.
+
+Bu mobile tarafdan reservation request yaratish vaqtida yuboriladigan tracking id.
+Backend uni saqlaydi, lekin final confirmed reservation o'zining reservation_id si bilan yaratiladi.
+
+Tavsiya:
+- mobile request yaratishdan oldin UUID generatsiya qilsin
+- local state da saqlab qo'ysin
+- local pending state ni server record bilan solishtirishda foydali bo'ladi
+
+13.2. doctor_id vs reservation_request id vs reservation_id
+
+- doctor_id
+  - tanlangan doctor
+- reservation request id
+  - pending / approval bosqichidagi request id
+- reservation_id
+  - real confirmed reservation id
+
+Bularni aralashtirmang.
+
+13.3. Booking date format
+
+Reservation API lar odatda quyidagini kutadi:
+- "22-03-2026"
+
+quyidagini emas:
+- "2026-03-22"
+
+Mobile reservation API larga ISO sana yuborsa validation fail bo'lishi mumkin.
+
+13.4. slot_minutes
+
+Backend uni normalize qiladi.
+- default = 60
+- 15 dan kichik bo'lsa 15 ga ko'tariladi
+
+Tavsiya:
+- frontend qiymatlari slot UI bilan bir xil bo'lsin
+- agar UI 60 minutlik slotlar bilan ishlasa, doim 60 yuboring
+
+13.5. Public mobile endpoint lar read-only
+
+- /mobile/articles
+- /mobile/news
+- /mobile/vacancies
+
+Bu endpoint lar faqat o'qish uchun.
+Yaratish va admin boshqaruvi CRM/admin tarafida bo'ladi.
+
+13.6. Loyalty hozircha sodda
+
+Hozirgi tier/cashback logikasi ataylab yengil yozilgan.
+Business qoidalari keyin o'zgarishi mumkin.
+Frontend response dagi qiymatga tayanishi kerak, ichki formula ni qattiq hardcode qilmasin.
+
+==================================================
+14. Tezkor Endpoint Index
+==================================================
+
+Auth:
+- POST /users/login/
+- POST /users/token/refresh
+
+Profile / Dashboard:
+- GET /mobile/dashboard
+- GET /mobile/me
+- PATCH /mobile/me
+- GET /mobile/status
+- GET /mobile/loyalty
+- GET /mobile/cashback/history
+- POST /mobile/referral/apply-code
+
+Content:
+- GET /mobile/about
+- GET /mobile/articles
+- GET /mobile/articles/{id}
+- GET /mobile/news
+- GET /mobile/news/{id}
+- GET /mobile/services
+- GET /mobile/services/{id}
+
+Vacancies:
+- GET /mobile/vacancies
+- GET /mobile/vacancies/{id}
+- POST /mobile/vacancies/apply
+
+Booking:
+- GET /mobile/reservation/doctors
+- GET /mobile/reservation/doctors/{id}
+- GET /mobile/reservation/doctors/{id}/slots
+- GET /mobile/reservation-requests
+- POST /mobile/reservation-requests
+- GET /mobile/reservation-requests/{id}
+- PATCH /mobile/reservation-requests/{id}/cancel
+- PATCH /mobile/reservation-requests/{id}/confirm
+- GET /mobile/reservations
+- GET /mobile/reservations/{id}
+
+Treatments:
+- GET /mobile/treatments
+- GET /mobile/treatments/{id}
+
+Notifications:
+- GET /mobile/notifications
+- GET /mobile/notifications/unread-count
+- PATCH /mobile/notifications/{id}/read
+- PATCH /mobile/notifications/read-all
+
+==================================================
+15. Mobile Jamoa Uchun Yakuniy Tavsiya
+==================================================
+
+Integratsiyani eng oson qilish uchun ekranlarni quyidagi tartibda yozish tavsiya qilinadi:
+1. Login + token refresh
+2. Dashboard
+3. Doctor list + slot selection
+4. Service selection
+5. Reservation request create
+6. My requests + My reservations
+7. Notifications
+8. Treatments
+9. Loyalty / referral / status
+10. Articles / news / vacancies
+
+Agar swagger va shu hujjat orasida farq chiqsa, eng avval hozirgi backend kodiga qarang va hardcode qilishdan oldin backend bilan aniqlashtiring.
