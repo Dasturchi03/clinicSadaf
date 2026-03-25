@@ -22,4 +22,5 @@ exec gunicorn clinicSADAF.asgi:application \
   -k uvicorn.workers.UvicornWorker \
   --bind 0.0.0.0:8000 \
   --workers "${GUNICORN_WORKERS:-3}" \
-  --timeout "${GUNICORN_TIMEOUT:-120}"
+  --timeout "${GUNICORN_TIMEOUT:-120}" \
+  --reload
