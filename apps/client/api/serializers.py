@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -418,10 +419,19 @@ class ClientAnamnesisDetailSerializer(serializers.ModelSerializer):
         ]
 
 
+def serialize_datetime(value):
+    if not value:
+        return None
+    if timezone.is_naive(value):
+        value = timezone.make_aware(value, timezone.get_current_timezone())
+    return timezone.localtime(value).strftime("%d-%m-%Y %H:%M")
+
+
 class MobileMeSerializer(serializers.ModelSerializer):
     phone = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
     username = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
     loyalty_tier_label = serializers.CharField(source="get_loyalty_tier_display", read_only=True)
 
     class Meta:
@@ -459,6 +469,9 @@ class MobileMeSerializer(serializers.ModelSerializer):
 
     def get_username(self, obj):
         return obj.client_user.username if obj.client_user else None
+
+    def get_created_at(self, obj):
+        return serialize_datetime(obj.created_at)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -559,6 +572,7 @@ class MobileReferralInfoSerializer(serializers.ModelSerializer):
 class MobileCashbackEntrySerializer(serializers.ModelSerializer):
     entry_type_label = serializers.CharField(source="get_entry_type_display", read_only=True)
     related_client_name = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = CashbackEntry
@@ -575,6 +589,9 @@ class MobileCashbackEntrySerializer(serializers.ModelSerializer):
 
     def get_related_client_name(self, obj):
         return obj.related_client.full_name() if obj.related_client else None
+
+    def get_created_at(self, obj):
+        return serialize_datetime(obj.created_at)
 
 
 class ApplyReferralCodeSerializer(serializers.Serializer):
