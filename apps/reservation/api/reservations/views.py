@@ -1,7 +1,7 @@
 from datetime import datetime, date
 
 from django.db.models import Prefetch, Q
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, status
@@ -21,6 +21,7 @@ from apps.reservation import services
 from apps.reservation import filtersets
 from apps.reservation.api.reservations import serializers
 from apps.reservation.models import Reservation
+from apps.work.models import Work
 
 
 @extend_schema(tags=["reservations"])
@@ -282,6 +283,25 @@ class MobileReservationDoctorDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.MobileReservationDoctorDetailSerializer
     permission_classes = (AllowAny,)
     queryset = services.get_doctors_queryset()
+
+
+@extend_schema(tags=["mobile_reservation"])
+class MobileReservationDoctorWorksView(generics.ListAPIView):
+    serializer_class = serializers.MobileReservationDoctorWorkSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        doctor = get_object_or_404(services.get_doctors_queryset(), pk=self.kwargs["pk"])
+        return (
+            Work.objects.filter(deleted=False)
+            .filter(
+                Q(specialization__user_specialization__id=doctor.id)
+                | Q(specialization__isnull=True)
+            )
+            .prefetch_related("category", "specialization")
+            .order_by("work_title")
+            .distinct()
+        )
 
 
 @extend_schema(

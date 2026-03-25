@@ -15,7 +15,7 @@ from apps.user.api.nested_serializers import NestedDoctorSerializer
 from apps.user.api.serializers import DoctorSerializer, UserSpecializationSerializer
 from apps.user.models import User
 from apps.work.api.nested_serializers import NestedWorkReservationSerializer
-from apps.work.api.serializers import WorkDetailSerializer
+from apps.work.api.serializers import MobileWorkSerializer, WorkDetailSerializer
 from apps.work.models import Work
 
 
@@ -464,6 +464,10 @@ class MobileReservationDoctorDetailSerializer(ReservationDoctorDetailSerializer)
 
     def get_full_name(self, obj):
         return obj.full_name()
+
+
+class MobileReservationDoctorWorkSerializer(MobileWorkSerializer):
+    pass
 
 
 class MobileReservationListSerializer(serializers.ModelSerializer):
