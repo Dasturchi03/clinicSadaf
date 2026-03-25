@@ -5,6 +5,13 @@ from django.utils.translation import gettext_lazy as _
 from .models import Notification, NotificationTypes
 
 
+def get_current_local_date():
+    current_time = timezone.now()
+    if timezone.is_aware(current_time):
+        return timezone.localtime(current_time).date()
+    return current_time.date()
+
+
 @database_sync_to_async
 def filter_notification(user_id):
     queryset = Notification.objects.filter(notification_receiver_id=user_id)
@@ -120,7 +127,7 @@ def create_reservation_cancelled_by_patient_notification(*, reservation, doctor)
 
 
 def create_reservation_reminder_notification(*, reservation, receiver):
-    today = timezone.localdate()
+    today = get_current_local_date()
     existing = Notification.objects.filter(
         notification_receiver=receiver,
         notification_reservation=reservation,

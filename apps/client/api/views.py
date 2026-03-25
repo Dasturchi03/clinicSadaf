@@ -21,6 +21,13 @@ from apps.transaction.models import Transaction
 # from apps.client.signals import client_signal
 
 
+def get_current_local_date():
+    current_time = timezone.now()
+    if timezone.is_aware(current_time):
+        return timezone.localtime(current_time).date()
+    return current_time.date()
+
+
 def get_mobile_client_or_error(user):
     client = getattr(user, "client_user", None)
     if not client:
@@ -254,7 +261,7 @@ class MobileDashboardView(generics.GenericAPIView):
         active_reservations = Reservation.objects.filter(
             reservation_client=client,
             cancelled=False,
-            reservation_date__gte=timezone.localdate(),
+            reservation_date__gte=get_current_local_date(),
         )
         active_treatments = MedicalCard.objects.filter(
             client=client,
