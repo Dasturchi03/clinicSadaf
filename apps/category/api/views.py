@@ -1,4 +1,5 @@
 from django.db.models import Prefetch
+from rest_framework.permissions import IsAuthenticated
 
 from apps.category import filtersets
 from apps.category.api import serializers
@@ -19,6 +20,11 @@ class CategoryViewSet(BaseViewSet):
     filterset_class = filtersets.CategoryFilterSet
     permission_classes = (AccessPermissions,)
     pagination_class = BasePagination
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [IsAuthenticated()]
+        return [permission() for permission in self.permission_classes]
 
 
 class PrintOutCategoryViewSet(BaseViewSet):
