@@ -642,7 +642,7 @@ class MobileStatusSerializer(serializers.ModelSerializer):
 
 
 class MobileDashboardSerializer(serializers.Serializer):
-    profile = MobileMeSerializer()
+    profile = serializers.DictField()
     counters = serializers.DictField()
-    loyalty = MobileReferralInfoSerializer()
+    loyalty = serializers.DictField()
     next_reservation = serializers.DictField(allow_null=True)
