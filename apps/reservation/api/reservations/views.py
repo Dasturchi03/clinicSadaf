@@ -248,6 +248,13 @@ class ReservationDoctorsView(generics.RetrieveAPIView, generics.ListAPIView):
             required=False,
             description="Filter doctors by specialization title or specialization id.",
         ),
+        OpenApiParameter(
+            name="category_id",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter doctors who have at least one specialization linked to works in the given category.",
+        ),
     ],
 )
 class MobileReservationDoctorsView(generics.ListAPIView):
@@ -257,11 +264,16 @@ class MobileReservationDoctorsView(generics.ListAPIView):
     def get_queryset(self):
         queryset = services.get_doctors_queryset()
         specialization = self.request.query_params.get("specialization")
+        category_id = self.request.query_params.get("category_id")
         if specialization:
             q = Q(user_specialization__specialization_text__iexact=specialization)
             if specialization.isdigit():
                 q |= Q(user_specialization__specialization_id=int(specialization))
             queryset = queryset.filter(q)
+        if category_id:
+            queryset = queryset.filter(
+                user_specialization__work_specialization__category__category_id=category_id
+            )
         return queryset
 
 
