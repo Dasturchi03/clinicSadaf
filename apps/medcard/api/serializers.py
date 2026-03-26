@@ -208,7 +208,9 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
     paid_amount = serializers.SerializerMethodField()
     remaining_amount = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    payment_status = serializers.SerializerMethodField()
     status_label = serializers.SerializerMethodField()
+    payment_status_label = serializers.SerializerMethodField()
     card_number = serializers.SerializerMethodField()
     reservation_summary = serializers.SerializerMethodField()
     reservation_datetime = serializers.SerializerMethodField()
@@ -234,6 +236,8 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
             "total_price",
             "status",
             "status_label",
+            "payment_status",
+            "payment_status_label",
             "reservation_summary",
             "reservation_datetime",
             "treatment_plan_summary",
@@ -312,19 +316,37 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
         return max(total_price - paid_amount, 0)
 
     def get_status(self, obj):
+        if obj.card_is_done:
+            return "completed"
+        if any(action.action_is_done for action in self._get_card_actions(obj)):
+            return "in_progress"
+        if self._get_latest_reservation(obj):
+            return "accepted"
+        return "in_progress"
+
+    def get_payment_status(self, obj):
         if obj.card_is_paid:
             return "paid"
-        if obj.card_is_done:
-            return "in_progress"
-        return "active"
+        paid_amount = self.get_paid_amount(obj)
+        if paid_amount > 0:
+            return "partial"
+        return "unpaid"
 
     def get_status_label(self, obj):
         mapping = {
-            "paid": "To'langan",
+            "accepted": "Qabul",
             "in_progress": "Jarayonda",
-            "active": "Qabul",
+            "completed": "O'tilgan",
         }
-        return mapping.get(self.get_status(obj), "Qabul")
+        return mapping.get(self.get_status(obj), "Jarayonda")
+
+    def get_payment_status_label(self, obj):
+        mapping = {
+            "paid": "To'langan",
+            "partial": "Qisman to'langan",
+            "unpaid": "To'lanmagan",
+        }
+        return mapping.get(self.get_payment_status(obj), "To'lanmagan")
 
     def get_card_number(self, obj):
         return f"N {obj.card_id}"

@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.http import Http404
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics
@@ -151,7 +151,14 @@ class XrayViewSet(BaseViewSet):
             type=str,
             location=OpenApiParameter.QUERY,
             required=False,
-            description="Filter treatments by status: active, in_progress, paid.",
+            description="Filter treatments by lifecycle status: accepted, in_progress, completed.",
+        ),
+        OpenApiParameter(
+            name="payment_status",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Optional payment filter: unpaid, partial, paid.",
         ),
     ],
 )
@@ -188,12 +195,30 @@ class MobileTreatmentListView(ListAPIView):
             .order_by("-card_created_at")
         )
         status_filter = self.request.query_params.get("status")
-        if status_filter == "paid":
-            queryset = queryset.filter(card_is_paid=True)
+        payment_status_filter = self.request.query_params.get("payment_status")
+
+        if status_filter == "completed":
+            queryset = queryset.filter(card_is_done=True)
+        elif status_filter == "accepted":
+            queryset = queryset.filter(card_is_done=False).exclude(
+                stage__action_stage__action_is_done=True
+            ).filter(stage__action_stage__action_date__isnull=False)
         elif status_filter == "in_progress":
-            queryset = queryset.filter(card_is_paid=False, card_is_done=True)
-        elif status_filter == "active":
+            queryset = queryset.filter(card_is_done=False).filter(
+                Q(stage__action_stage__action_is_done=True)
+                | Q(stage__action_stage__action_date__isnull=True)
+            )
+
+        if payment_status_filter == "paid":
+            queryset = queryset.filter(card_is_paid=True)
+        elif payment_status_filter == "partial":
+            queryset = queryset.filter(card_is_paid=False).filter(
+                transaction_card__transaction_sum__gt=0
+            )
+        elif payment_status_filter == "unpaid":
             queryset = queryset.filter(card_is_paid=False)
+
+        queryset = queryset.distinct()
         return queryset
 
 
