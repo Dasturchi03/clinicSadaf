@@ -6,11 +6,17 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
-from rest_framework.exceptions import APIException, ValidationError
+from rest_framework.exceptions import (
+    APIException,
+    AuthenticationFailed,
+    NotAuthenticated,
+    ValidationError,
+)
 from rest_framework.exceptions import ErrorDetail, NotFound
 from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 
 class UniqueValidationError(APIException):
@@ -45,6 +51,14 @@ class ModuleNotFound(Exception):
 logger = logging.getLogger(__name__)
 
 
+AUTH_EXCEPTIONS = (
+    AuthenticationFailed,
+    NotAuthenticated,
+    InvalidToken,
+    TokenError,
+)
+
+
 def custom_exception_handler(exc, context):
     if isinstance(exc, Http404):
         exc = NotFound()
@@ -63,6 +77,9 @@ def custom_exception_handler(exc, context):
 
     if response is not None:
         status_code = response.status_code
+
+        if isinstance(exc, AUTH_EXCEPTIONS):
+            status_code = status.HTTP_401_UNAUTHORIZED
 
         # Check if the error details are in dictionary format and recursively process them
         if hasattr(exc, "detail"):
