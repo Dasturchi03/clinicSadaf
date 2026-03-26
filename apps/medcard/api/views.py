@@ -166,7 +166,25 @@ class MobileTreatmentListView(ListAPIView):
             return MedicalCard.objects.none()
         queryset = (
             MedicalCard.objects.filter(client=client)
-            .prefetch_related("transaction_card", "credit_card")
+            .prefetch_related(
+                "transaction_card",
+                "credit_card",
+                Prefetch(
+                    "stage",
+                    queryset=Stage.objects.select_related("tooth").prefetch_related(
+                        Prefetch(
+                            "action_stage",
+                            queryset=Action.objects.select_related(
+                                "action_doctor",
+                                "action_work",
+                                "action_date",
+                                "action_date__reservation_doctor",
+                                "action_date__reservation_work",
+                            ).order_by("action_id"),
+                        )
+                    ).order_by("stage_index"),
+                ),
+            )
             .order_by("-card_created_at")
         )
         status_filter = self.request.query_params.get("status")

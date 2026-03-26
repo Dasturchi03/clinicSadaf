@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from django.db.models import Sum
+from rest_framework import serializers
 
 from apps.client.api.nested_serializer import NestedClientSerializer
 from apps.credit.api.serializers import CreditSerializer
@@ -10,6 +10,7 @@ from apps.medcard.api.base_serializers import (
 )
 from apps.medcard.api.nested_serializers import NestedToothSerializer
 from apps.medcard.models import Action, MedicalCard, Stage, Tooth, Xray
+from apps.reservation.models import Reservation
 from apps.transaction.api.serializers import TransactionSerializer
 from apps.user.api.nested_serializers import NestedDoctorSerializer
 from apps.user.models import User
@@ -186,16 +187,40 @@ class MobileTreatmentStageSerializer(serializers.ModelSerializer):
         ]
 
 
+class MobileTreatmentPlanItemSerializer(serializers.Serializer):
+    action_id = serializers.IntegerField()
+    stage_id = serializers.IntegerField(allow_null=True)
+    stage_index = serializers.IntegerField(allow_null=True)
+    tooth_number = serializers.CharField(allow_null=True)
+    service_title = serializers.CharField(allow_null=True)
+    doctor_name = serializers.CharField(allow_null=True)
+    reservation_date = serializers.CharField(allow_null=True)
+    reservation_start_time = serializers.CharField(allow_null=True)
+    reservation_end_time = serializers.CharField(allow_null=True)
+    price = serializers.FloatField()
+    is_done = serializers.BooleanField()
+    is_paid = serializers.BooleanField()
+
+
 class MobileTreatmentListSerializer(serializers.ModelSerializer):
     doctors = serializers.SerializerMethodField()
+    doctor_name = serializers.SerializerMethodField()
     paid_amount = serializers.SerializerMethodField()
     remaining_amount = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    status_label = serializers.SerializerMethodField()
+    card_number = serializers.SerializerMethodField()
+    reservation_summary = serializers.SerializerMethodField()
+    reservation_datetime = serializers.SerializerMethodField()
+    treatment_plan_summary = serializers.SerializerMethodField()
+    treatment_plan_count = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = MedicalCard
         fields = [
             "card_id",
+            "card_number",
             "card_price",
             "card_discount_price",
             "card_discount_percent",
@@ -203,11 +228,62 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
             "card_is_paid",
             "card_finished_at",
             "doctors",
+            "doctor_name",
             "paid_amount",
             "remaining_amount",
+            "total_price",
             "status",
+            "status_label",
+            "reservation_summary",
+            "reservation_datetime",
+            "treatment_plan_summary",
+            "treatment_plan_count",
             "card_created_at",
         ]
+
+    def _get_card_actions(self, obj):
+        prefetched_stages = getattr(obj, "_prefetched_objects_cache", {}).get("stage")
+        if prefetched_stages is not None:
+            actions = []
+            for stage in prefetched_stages:
+                stage_actions = getattr(stage, "_prefetched_objects_cache", {}).get(
+                    "action_stage"
+                )
+                if stage_actions is not None:
+                    actions.extend(stage_actions)
+                else:
+                    actions.extend(stage.action_stage.all())
+            return actions
+        return list(
+            Action.objects.filter(action_stage__card=obj)
+            .select_related("action_doctor", "action_work", "action_date", "action_stage__tooth")
+            .order_by("action_stage__stage_index", "action_id")
+        )
+
+    def _get_latest_reservation(self, obj):
+        actions = [action for action in self._get_card_actions(obj) if action.action_date_id]
+        if not actions:
+            return None
+        actions.sort(
+            key=lambda action: (
+                action.action_date.reservation_date,
+                action.action_date.reservation_start_time,
+                action.action_date_id,
+            ),
+            reverse=True,
+        )
+        return actions[0].action_date
+
+    def _build_plan_titles(self, obj):
+        titles = []
+        seen = set()
+        for action in self._get_card_actions(obj):
+            title = action.action_work.work_title if action.action_work else None
+            if not title or title in seen:
+                continue
+            seen.add(title)
+            titles.append(title)
+        return titles
 
     def get_doctors(self, obj):
         doctors = (
@@ -216,6 +292,15 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
             .distinct()
         )
         return NestedDoctorSerializer(doctors, many=True).data
+
+    def get_doctor_name(self, obj):
+        doctors = self.get_doctors(obj)
+        if not doctors:
+            return None
+        first_doctor = doctors[0]
+        return " ".join(
+            filter(None, [first_doctor.get("user_firstname"), first_doctor.get("user_lastname")])
+        ) or None
 
     def get_paid_amount(self, obj):
         paid_amount = obj.transaction_card.aggregate(total=Sum("transaction_sum"))["total"]
@@ -233,12 +318,64 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
             return "in_progress"
         return "active"
 
+    def get_status_label(self, obj):
+        mapping = {
+            "paid": "To'langan",
+            "in_progress": "Jarayonda",
+            "active": "Qabul",
+        }
+        return mapping.get(self.get_status(obj), "Qabul")
+
+    def get_card_number(self, obj):
+        return f"N {obj.card_id}"
+
+    def get_reservation_summary(self, obj):
+        reservation = self._get_latest_reservation(obj)
+        if not reservation:
+            return None
+        return {
+            "reservation_id": reservation.reservation_id,
+            "date": reservation.reservation_date.strftime("%d-%m-%Y"),
+            "start_time": reservation.reservation_start_time.strftime("%H:%M"),
+            "end_time": reservation.reservation_end_time.strftime("%H:%M"),
+            "doctor_name": reservation.reservation_doctor.full_name()
+            if reservation.reservation_doctor
+            else None,
+            "service_title": reservation.reservation_work.work_title
+            if reservation.reservation_work
+            else None,
+            "is_initial": reservation.is_initial,
+        }
+
+    def get_reservation_datetime(self, obj):
+        reservation = self.get_reservation_summary(obj)
+        if not reservation:
+            return None
+        return f'{reservation["date"]}, {reservation["start_time"]} - {reservation["end_time"]}'
+
+    def get_treatment_plan_summary(self, obj):
+        titles = self._build_plan_titles(obj)
+        if not titles:
+            return None
+        if len(titles) <= 3:
+            return ", ".join(titles)
+        return ", ".join(titles[:3]) + f" +{len(titles) - 3}"
+
+    def get_treatment_plan_count(self, obj):
+        return len(self._build_plan_titles(obj))
+
+    def get_total_price(self, obj):
+        return obj.card_discount_price or obj.card_price or 0
+
 
 class MobileTreatmentDetailSerializer(MobileTreatmentListSerializer):
     client = NestedClientSerializer(read_only=True)
     stage = MobileTreatmentStageSerializer(many=True, read_only=True)
     credits = serializers.SerializerMethodField()
     transactions = TransactionSerializer(source="transaction_card", many=True, read_only=True)
+    treatment_plan = serializers.SerializerMethodField()
+    card_title = serializers.SerializerMethodField()
+    contract_link = serializers.SerializerMethodField()
 
     class Meta(MobileTreatmentListSerializer.Meta):
         fields = MobileTreatmentListSerializer.Meta.fields + [
@@ -246,8 +383,53 @@ class MobileTreatmentDetailSerializer(MobileTreatmentListSerializer):
             "stage",
             "credits",
             "transactions",
+            "treatment_plan",
+            "card_title",
+            "contract_link",
         ]
 
     def get_credits(self, obj):
         credits = obj.credit_card.all().order_by("-credit_created_at")
         return CreditSerializer(credits, many=True).data
+
+    def get_treatment_plan(self, obj):
+        items = []
+        for action in self._get_card_actions(obj):
+            reservation = action.action_date
+            items.append(
+                {
+                    "action_id": action.action_id,
+                    "stage_id": action.action_stage_id,
+                    "stage_index": action.action_stage.stage_index
+                    if action.action_stage
+                    else None,
+                    "tooth_number": action.action_stage.tooth.tooth_number
+                    if action.action_stage and action.action_stage.tooth
+                    else None,
+                    "service_title": action.action_work.work_title
+                    if action.action_work
+                    else None,
+                    "doctor_name": action.action_doctor.full_name()
+                    if action.action_doctor
+                    else None,
+                    "reservation_date": reservation.reservation_date.strftime("%d-%m-%Y")
+                    if reservation
+                    else None,
+                    "reservation_start_time": reservation.reservation_start_time.strftime("%H:%M")
+                    if reservation
+                    else None,
+                    "reservation_end_time": reservation.reservation_end_time.strftime("%H:%M")
+                    if reservation
+                    else None,
+                    "price": action.action_price or 0,
+                    "is_done": action.action_is_done,
+                    "is_paid": action.action_is_paid,
+                }
+            )
+        return MobileTreatmentPlanItemSerializer(items, many=True).data
+
+    def get_card_title(self, obj):
+        return f"Davolanish kartasi {self.get_card_number(obj)}"
+
+    def get_contract_link(self, obj):
+        return None
