@@ -1,7 +1,7 @@
 from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 
-from apps.about.models import Article, ArticleImage
+from apps.about.models import Article, ArticleImage, ContractDocument
 
 
 class ArticleImagesInline(admin.StackedInline):
@@ -16,3 +16,4 @@ class ArticleAdmin(TranslationAdmin):
 
 
 admin.site.register(Article, ArticleAdmin)
+admin.site.register(ContractDocument)

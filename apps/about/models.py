@@ -19,3 +19,13 @@ class ArticleImage(BaseModel):
     photo_id = models.AutoField(primary_key=True)
     article_image = models.ImageField(upload_to="articles/")
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='images')
+
+
+class ContractDocument(BaseModel):
+    contract_id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255)
+    file = models.FileField(upload_to="contracts/")
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title

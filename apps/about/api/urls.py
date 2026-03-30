@@ -15,4 +15,9 @@ router.register("mobile/news", views.NewsPublicViewSet, basename="mobile-news")
 
 urlpatterns = router.urls + [
     path("mobile/about", views.MobileAboutView.as_view(), name="mobile_about"),
+    path(
+        "mobile/contract/download",
+        views.MobileContractDownloadView.as_view(),
+        name="mobile_contract_download",
+    ),
 ]

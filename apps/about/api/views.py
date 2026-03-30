@@ -1,5 +1,7 @@
+from django.http import FileResponse, Http404
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,7 +11,7 @@ from apps.core.pagination import BasePagination
 from apps.core.permissions import AccessPermissions
 
 from apps.core.choices import ArticleTypes
-from apps.about.models import Article
+from apps.about.models import Article, ContractDocument
 from apps.about.api.serializers import (
     ArticleAdminReadSerializer,
     ArticleAdminWriteSerializer,
@@ -111,4 +113,25 @@ class MobileAboutView(APIView):
                     context=serializer_context,
                 ).data,
             }
+        )
+
+
+@extend_schema(tags=["mobile_content"])
+class MobileContractDownloadView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        contract = (
+            ContractDocument.objects.filter(is_active=True)
+            .order_by("-created_at", "-contract_id")
+            .first()
+        )
+        if not contract or not contract.file:
+            raise Http404("Active contract document was not found")
+        filename = contract.file.name.split("/")[-1]
+        return FileResponse(
+            contract.file.open("rb"),
+            as_attachment=True,
+            filename=filename,
+            content_type="application/pdf",
         )
