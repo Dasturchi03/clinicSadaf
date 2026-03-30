@@ -1,6 +1,10 @@
 from rest_framework import serializers
 
-from apps.notifications.models import Notification
+from apps.notifications.models import (
+    Notification,
+    NotificationDevice,
+    NotificationDevicePlatforms,
+)
 from apps.notifications.utils import get_notification_label
 from apps.user.api.nested_serializers import NestedDoctorSerializer
 
@@ -105,3 +109,27 @@ class MobileNotificationSerializer(serializers.ModelSerializer):
             "reservation_end_time": reservation.reservation_end_time.strftime("%H:%M"),
             "cancelled": reservation.cancelled,
         }
+
+
+class MobileNotificationDeviceSerializer(serializers.ModelSerializer):
+    platform = serializers.ChoiceField(
+        choices=NotificationDevicePlatforms.choices,
+        required=False,
+        default=NotificationDevicePlatforms.UNKNOWN,
+    )
+
+    class Meta:
+        model = NotificationDevice
+        fields = [
+            "device_id",
+            "token",
+            "platform",
+            "device_uid",
+            "is_active",
+            "last_seen_at",
+        ]
+        read_only_fields = ["device_id", "is_active", "last_seen_at"]
+
+
+class MobileNotificationDeviceUnregisterSerializer(serializers.Serializer):
+    token = serializers.CharField()

@@ -1,6 +1,7 @@
 import logging
 
 from .models import Notification
+from .utils import send_push_notification
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from channels.layers import get_channel_layer
@@ -25,5 +26,12 @@ def notification_channels(sender, instance, created, **kwargs):
         except Exception:
             logger.exception(
                 "Failed to publish notification event for notification_id=%s",
+                instance.notification_id,
+            )
+        try:
+            send_push_notification(instance)
+        except Exception:
+            logger.exception(
+                "Failed to send push notification for notification_id=%s",
                 instance.notification_id,
             )

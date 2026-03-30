@@ -274,3 +274,5 @@ dev-up.sh
 
 uploads/
 static/
+
+firebase-service-account.json

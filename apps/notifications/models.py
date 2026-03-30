@@ -44,3 +44,43 @@ class Notification(models.Model):
             ("change_notification", "Изменить уведомление"),
             ("delete_notification", "Удалить уведомление")
         ]
+
+
+class NotificationDevicePlatforms(models.TextChoices):
+    ANDROID = "android", "Android"
+    IOS = "ios", "iOS"
+    WEB = "web", "Web"
+    UNKNOWN = "unknown", "Unknown"
+
+
+class NotificationDevice(models.Model):
+    device_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(
+        User,
+        related_name="notification_devices",
+        on_delete=models.CASCADE,
+    )
+    token = models.CharField(max_length=512, unique=True)
+    platform = models.CharField(
+        max_length=32,
+        choices=NotificationDevicePlatforms.choices,
+        default=NotificationDevicePlatforms.UNKNOWN,
+    )
+    device_uid = models.CharField(max_length=255, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    last_seen_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user_id}:{self.platform}:{self.device_id}"
+
+    class Meta:
+        verbose_name = "Устройство уведомлений"
+        verbose_name_plural = "Устройства уведомлений"
+        default_permissions = ()
+        permissions = [
+            ("add_notificationdevice", "Добавить устройство уведомлений"),
+            ("view_notificationdevice", "Просмотреть устройство уведомлений"),
+            ("change_notificationdevice", "Изменить устройство уведомлений"),
+            ("delete_notificationdevice", "Удалить устройство уведомлений"),
+        ]

@@ -4,8 +4,12 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.notifications.api.serializers import MobileNotificationSerializer
-from apps.notifications.models import Notification
+from apps.notifications.api.serializers import (
+    MobileNotificationDeviceSerializer,
+    MobileNotificationDeviceUnregisterSerializer,
+    MobileNotificationSerializer,
+)
+from apps.notifications.models import Notification, NotificationDevice
 from apps.core.pagination import BasePagination
 
 
@@ -68,4 +72,42 @@ class MobileNotificationReadAllView(generics.GenericAPIView):
             notification_receiver=request.user,
             is_read=False,
         ).update(is_read=True)
+        return Response({"updated_count": updated_count}, status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["mobile_notifications"])
+class MobileNotificationDeviceRegisterView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = MobileNotificationDeviceSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        device, _ = NotificationDevice.objects.update_or_create(
+            token=data["token"],
+            defaults={
+                "user": request.user,
+                "platform": data.get("platform"),
+                "device_uid": data.get("device_uid"),
+                "is_active": True,
+            },
+        )
+        response_serializer = self.get_serializer(device)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["mobile_notifications"])
+class MobileNotificationDeviceUnregisterView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = MobileNotificationDeviceUnregisterSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        updated_count = NotificationDevice.objects.filter(
+            user=request.user,
+            token=serializer.validated_data["token"],
+        ).update(is_active=False)
         return Response({"updated_count": updated_count}, status=status.HTTP_200_OK)
