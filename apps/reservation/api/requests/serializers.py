@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from apps.client.api.nested_serializer import NestedClientReservationSerializer
+from apps.core.choices import ReservationRequestStatuses
 from apps.notifications.utils import create_reservation_request_notification
 from apps.reservation import services
 from apps.reservation.models import ReservationRequest
@@ -197,6 +198,7 @@ class MobileReservationRequestSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         validated_data["client"] = request.user.client_user
         validated_data["doctor_name"] = validated_data["doctor"].full_name()
+        validated_data["status"] = ReservationRequestStatuses.APPROVED_BY_PATIENT
         instance = super().create(validated_data)
         if instance.doctor:
             create_reservation_request_notification(instance.doctor)

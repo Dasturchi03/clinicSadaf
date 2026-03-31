@@ -371,10 +371,15 @@ def approve_reservation_request_by_patient(reservation_request):
         pk=reservation_request.pk
     )
 
-    if reservation_request.status != ReservationRequestStatuses.APPROVED:
-        raise ValidationError(_("Only approved requests can be confirmed by patient"))
+    if reservation_request.status in {
+        ReservationRequestStatuses.CANCELLED,
+        ReservationRequestStatuses.CANCELLED_BY_PATIENT,
+    }:
+        raise ValidationError(_("Cancelled request cannot be confirmed"))
+    if reservation_request.status == ReservationRequestStatuses.APPROVED_BY_PATIENT:
+        return reservation_request
     if not reservation_request.reservation_id:
-        raise ValidationError(_("Reservation request has no created reservation"))
+        return reservation_request
 
     reservation_request.status = ReservationRequestStatuses.APPROVED_BY_PATIENT
     reservation_request.save(update_fields=["status", "updated_at"])
