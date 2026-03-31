@@ -1,7 +1,7 @@
 from django.db import models
 
 from apps.core.models import BaseModel
-from apps.core.choices import ArticleTypes
+from apps.core.choices import ArticleTypes, ContractDocumentTypes
 
 
 class Article(BaseModel):
@@ -24,8 +24,13 @@ class ArticleImage(BaseModel):
 class ContractDocument(BaseModel):
     contract_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255)
+    doc_type = models.CharField(
+        max_length=50,
+        choices=ContractDocumentTypes.choices,
+        default=ContractDocumentTypes.CONTRACT,
+    )
     file = models.FileField(upload_to="contracts/")
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.get_doc_type_display()}: {self.title}"

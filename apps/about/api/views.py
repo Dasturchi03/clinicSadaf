@@ -4,13 +4,14 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import serializers
 from rest_framework.views import APIView
 
 from apps.core.api.views import BaseViewSet
 from apps.core.pagination import BasePagination
 from apps.core.permissions import AccessPermissions
 
-from apps.core.choices import ArticleTypes
+from apps.core.choices import ArticleTypes, ContractDocumentTypes
 from apps.about.models import Article, ContractDocument
 from apps.about.api.serializers import (
     ArticleAdminReadSerializer,
@@ -116,18 +117,32 @@ class MobileAboutView(APIView):
         )
 
 
-@extend_schema(tags=["mobile_content"])
+class ContractDownloadQuerySerializer(serializers.Serializer):
+    doc_type = serializers.ChoiceField(
+        choices=ContractDocumentTypes.choices,
+        required=True,
+        help_text="Document type to download.",
+    )
+
+
+@extend_schema(
+    tags=["mobile_content"],
+    parameters=[ContractDownloadQuerySerializer],
+)
 class MobileContractDownloadView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
+        params = ContractDownloadQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        doc_type = params.validated_data["doc_type"]
         contract = (
-            ContractDocument.objects.filter(is_active=True)
+            ContractDocument.objects.filter(is_active=True, doc_type=doc_type)
             .order_by("-created_at", "-contract_id")
             .first()
         )
         if not contract or not contract.file:
-            raise Http404("Active contract document was not found")
+            raise Http404("Active document was not found")
         filename = contract.file.name.split("/")[-1]
         return FileResponse(
             contract.file.open("rb"),

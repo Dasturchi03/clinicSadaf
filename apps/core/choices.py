@@ -76,6 +76,14 @@ class ArticleTypes(models.TextChoices):
     NEWS = "news", _("News")
 
 
+class ContractDocumentTypes(models.TextChoices):
+    PRIVACY_POLICY = "privacy_policy", _("Privacy policy")
+    TERMS_AND_CONDITIONS = "terms_and_conditions", _("Terms and conditions")
+    ABOUT_APP = "about_app", _("About app")
+    RESERVATION_NOTES = "reservation_notes", _("Reservation notes")
+    CONTRACT = "contract", _("Contract")
+
+
 # TRANSACTION_TYPES = (
 #     ("Give credit", "Give credit"),                         # Выдача кредита
 #     ("Paid credit", "Paid credit"),                         # Погашение кредита

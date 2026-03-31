@@ -16,4 +16,10 @@ class ArticleAdmin(TranslationAdmin):
 
 
 admin.site.register(Article, ArticleAdmin)
-admin.site.register(ContractDocument)
+
+
+@admin.register(ContractDocument)
+class ContractDocumentAdmin(admin.ModelAdmin):
+    list_display = ["contract_id", "title", "doc_type", "is_active", "created_at"]
+    list_filter = ["doc_type", "is_active"]
+    search_fields = ["title"]
