@@ -50,6 +50,9 @@ class Work(models.Model):
     work_discount_price = models.FloatField(
         verbose_name="Скидочная цена работы", default=0, blank=True
     )
+    estimated_duration_days = models.PositiveIntegerField(
+        verbose_name="Примерная длительность (дней)", default=7
+    )
 
     work_fixed_salary_amount = models.FloatField(
         verbose_name="Сумма фиксированной зарплаты с работы", default=0, blank=True

@@ -81,6 +81,7 @@ class WorkSerializer(serializers.ModelSerializer):
             "work_vip_price",
             "work_discount_price",
             "work_discount_percent",
+            "estimated_duration_days",
             "work_fixed_salary_amount",
             "work_hybrid_salary_amount",
         ]
@@ -219,6 +220,7 @@ class WorkDetailSerializer(serializers.ModelSerializer):
             "work_vip_price",
             "work_discount_price",
             "work_discount_percent",
+            "estimated_duration_days",
             "work_fixed_salary_amount",
             "work_hybrid_salary_amount",
         ]
@@ -251,4 +253,5 @@ class MobileWorkSerializer(serializers.ModelSerializer):
             "work_vip_price",
             "work_discount_price",
             "work_discount_percent",
+            "estimated_duration_days",
         ]

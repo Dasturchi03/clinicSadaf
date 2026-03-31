@@ -197,6 +197,8 @@ class MobileTreatmentPlanItemSerializer(serializers.Serializer):
     reservation_date = serializers.CharField(allow_null=True)
     reservation_start_time = serializers.CharField(allow_null=True)
     reservation_end_time = serializers.CharField(allow_null=True)
+    estimated_duration_days = serializers.IntegerField(allow_null=True)
+    estimated_duration_label = serializers.CharField(allow_null=True)
     price = serializers.FloatField()
     is_done = serializers.BooleanField()
     is_paid = serializers.BooleanField()
@@ -207,6 +209,7 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
     doctor_name = serializers.SerializerMethodField()
     paid_amount = serializers.SerializerMethodField()
     remaining_amount = serializers.SerializerMethodField()
+    reservation_request_id = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     payment_status = serializers.SerializerMethodField()
     status_label = serializers.SerializerMethodField()
@@ -234,6 +237,7 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
             "paid_amount",
             "remaining_amount",
             "total_price",
+            "reservation_request_id",
             "status",
             "status_label",
             "payment_status",
@@ -324,6 +328,13 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
             return "accepted"
         return "in_progress"
 
+    def get_reservation_request_id(self, obj):
+        reservation = self._get_latest_reservation(obj)
+        if not reservation:
+            return None
+        reservation_request = getattr(reservation, "reservation_request", None)
+        return reservation_request.pk if reservation_request else None
+
     def get_payment_status(self, obj):
         if obj.card_is_paid:
             return "paid"
@@ -355,8 +366,10 @@ class MobileTreatmentListSerializer(serializers.ModelSerializer):
         reservation = self._get_latest_reservation(obj)
         if not reservation:
             return None
+        reservation_request = getattr(reservation, "reservation_request", None)
         return {
             "reservation_id": reservation.reservation_id,
+            "reservation_request_id": reservation_request.pk if reservation_request else None,
             "date": reservation.reservation_date.strftime("%d-%m-%Y"),
             "start_time": reservation.reservation_start_time.strftime("%H:%M"),
             "end_time": reservation.reservation_end_time.strftime("%H:%M"),
@@ -443,12 +456,28 @@ class MobileTreatmentDetailSerializer(MobileTreatmentListSerializer):
                     "reservation_end_time": reservation.reservation_end_time.strftime("%H:%M")
                     if reservation
                     else None,
+                    "estimated_duration_days": action.action_work.estimated_duration_days
+                    if action.action_work
+                    else None,
+                    "estimated_duration_label": self._format_duration_label(
+                        action.action_work.estimated_duration_days
+                    )
+                    if action.action_work
+                    else None,
                     "price": action.action_price or 0,
                     "is_done": action.action_is_done,
                     "is_paid": action.action_is_paid,
                 }
             )
         return MobileTreatmentPlanItemSerializer(items, many=True).data
+
+    def _format_duration_label(self, duration_days):
+        if not duration_days:
+            return None
+        if duration_days % 7 == 0:
+            weeks = duration_days // 7
+            return f"{weeks} hafta"
+        return f"{duration_days} kun"
 
     def get_card_title(self, obj):
         return f"Davolanish kartasi {self.get_card_number(obj)}"

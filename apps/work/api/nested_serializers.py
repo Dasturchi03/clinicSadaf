@@ -14,4 +14,4 @@ class NestedWorkReservationSerializer(serializers.ModelSerializer):
     # used in endpoints for reservation
     class Meta:
         model = Work
-        fields = ("work_id", "work_title", "work_basic_price")
+        fields = ("work_id", "work_title", "work_basic_price", "estimated_duration_days")

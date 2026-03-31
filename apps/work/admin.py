@@ -7,6 +7,7 @@ class WorkAdmin(TranslationAdmin):
     list_display = [
         "work_id",
         "work_title",
+        "estimated_duration_days",
         "work_basic_price",
         "work_vip_price"
     ]
