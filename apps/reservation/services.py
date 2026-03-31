@@ -324,9 +324,9 @@ def approve_reservation_request_by_clinic(
 
 @transaction.atomic
 def cancel_reservation_request(reservation_request, *, cancelled_by_patient=False):
-    reservation_request = reservation_request.__class__.objects.select_for_update().select_related(
-        "doctor", "client__client_user", "reservation"
-    ).get(pk=reservation_request.pk)
+    reservation_request = reservation_request.__class__.objects.select_for_update().get(
+        pk=reservation_request.pk
+    )
 
     if reservation_request.status in {
         ReservationRequestStatuses.CANCELLED,
@@ -367,9 +367,9 @@ def cancel_reservation_request(reservation_request, *, cancelled_by_patient=Fals
 
 @transaction.atomic
 def approve_reservation_request_by_patient(reservation_request):
-    reservation_request = reservation_request.__class__.objects.select_for_update().select_related(
-        "reservation"
-    ).get(pk=reservation_request.pk)
+    reservation_request = reservation_request.__class__.objects.select_for_update().get(
+        pk=reservation_request.pk
+    )
 
     if reservation_request.status != ReservationRequestStatuses.APPROVED:
         raise ValidationError(_("Only approved requests can be confirmed by patient"))
