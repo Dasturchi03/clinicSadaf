@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from apps.about.models import Article, ArticleImage
+from apps.about.models import Article, ArticleImage, TermsAndConditions, Contacts
 from apps.about.api.nested_serializers import NestedArticleImageSerializer
+from apps.core.choices import TermsAndConditionsChoices
 
 
 class ArticleAdminWriteSerializer(serializers.ModelSerializer):
@@ -129,3 +130,36 @@ class ArticlePublicDetailSerializer(serializers.ModelSerializer):
             "article_title": {"read_only": True},
             "article_body": {"read_only": True},
         }
+
+
+class TermsQuerySerializer(serializers.Serializer):
+    doc_type = serializers.ChoiceField(
+        choices=TermsAndConditionsChoices.choices,
+        required=True,
+        help_text="Document type to download.",
+    )
+
+
+class TermsAndConditionsSerializer(serializers.ModelSerializer):
+    text_type_display = serializers.CharField(source="get_text_type_display", read_only=True)
+
+    class Meta:
+        model = TermsAndConditions
+        fields = ("title", "text", "text_type", "text_type_display")
+
+
+class ContactsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Contacts
+        fields = (
+            "data_id",
+            "address",
+            "location_latt",
+            "location_long",
+            "phone",
+            "telegram",
+            "facebook",
+            "instagram",
+            "youtube",
+        )

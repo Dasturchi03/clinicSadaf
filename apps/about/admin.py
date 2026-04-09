@@ -1,7 +1,7 @@
 from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 
-from apps.about.models import Article, ArticleImage, ContractDocument
+from apps.about.models import Article, ArticleImage, ContractDocument, TermsAndConditions, Contacts
 
 
 class ArticleImagesInline(admin.StackedInline):
@@ -20,6 +20,16 @@ admin.site.register(Article, ArticleAdmin)
 
 @admin.register(ContractDocument)
 class ContractDocumentAdmin(admin.ModelAdmin):
-    list_display = ["contract_id", "title", "doc_type", "is_active", "created_at"]
-    list_filter = ["doc_type", "is_active"]
+    list_display = ["contract_id", "is_active", "created_at"]
+    list_filter = ["is_active"]
     search_fields = ["title"]
+
+
+class TermsConditionsAdmin(TranslationAdmin):
+    list_display = ["text_id", "title", "text_type", "text", "is_active", "created_at"]
+    list_filter = ["is_active", "texttt_type"]
+    search_fields = ["title"]
+
+
+admin.site.register(TermsAndConditions, TermsConditionsAdmin)
+admin.site.register(Contacts)

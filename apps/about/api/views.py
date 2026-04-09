@@ -11,13 +11,16 @@ from apps.core.api.views import BaseViewSet
 from apps.core.pagination import BasePagination
 from apps.core.permissions import AccessPermissions
 
-from apps.core.choices import ArticleTypes, ContractDocumentTypes
-from apps.about.models import Article, ContractDocument
+from apps.core.choices import ArticleTypes
+from apps.about.models import Article, ContractDocument, TermsAndConditions, Contacts
 from apps.about.api.serializers import (
     ArticleAdminReadSerializer,
     ArticleAdminWriteSerializer,
     ArticlePublicDetailSerializer,
     ArticlePublicListSerializer,
+    TermsQuerySerializer,
+    TermsAndConditionsSerializer,
+    ContactsSerializer
 )
 
 
@@ -117,27 +120,15 @@ class MobileAboutView(APIView):
         )
 
 
-class ContractDownloadQuerySerializer(serializers.Serializer):
-    doc_type = serializers.ChoiceField(
-        choices=ContractDocumentTypes.choices,
-        required=True,
-        help_text="Document type to download.",
-    )
-
-
 @extend_schema(
     tags=["mobile_content"],
-    parameters=[ContractDownloadQuerySerializer],
 )
 class MobileContractDownloadView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        params = ContractDownloadQuerySerializer(data=request.query_params)
-        params.is_valid(raise_exception=True)
-        doc_type = params.validated_data["doc_type"]
         contract = (
-            ContractDocument.objects.filter(is_active=True, doc_type=doc_type)
+            ContractDocument.objects.filter(is_active=True)
             .order_by("-created_at", "-contract_id")
             .first()
         )
@@ -150,3 +141,40 @@ class MobileContractDownloadView(APIView):
             filename=filename,
             content_type="application/pdf",
         )
+
+
+@extend_schema(
+    tags=["mobile_content"],
+    parameters=[TermsQuerySerializer],
+)
+class MobileTermsConditionsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        params = TermsQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        text_type = params.validated_data["text_type"]
+        obj = (
+            TermsAndConditions.objects.filter(is_active=True, text_type=text_type)
+            .order_by("-created_at", "-text_id")
+            .first()
+        )
+        if not obj or not obj.text:
+            raise Http404("Active document was not found")
+
+        return Response(TermsAndConditionsSerializer(obj).data)
+
+
+@extend_schema(
+    tags=["mobile_content"]
+)
+class ContactsView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        obj = Contacts.objects.order_by("-created_at", "-text_id").first()
+
+        if not obj:
+            raise Http404("Contacts not found!")
+
+        return Response(ContactsSerializer(obj).data)
+
