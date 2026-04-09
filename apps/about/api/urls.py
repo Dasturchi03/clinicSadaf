@@ -20,4 +20,6 @@ urlpatterns = router.urls + [
         views.MobileContractDownloadView.as_view(),
         name="mobile_contract_download",
     ),
+    path("mobile/terms", views.MobileTermsConditionsView.as_view(), name='mobile_terms'),
+    path("mobile/contacts", views.ContactsView.as_view(), name='mobile_contacts')
 ]
