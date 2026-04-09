@@ -133,10 +133,9 @@ class ArticlePublicDetailSerializer(serializers.ModelSerializer):
 
 
 class TermsQuerySerializer(serializers.Serializer):
-    doc_type = serializers.ChoiceField(
+    text_type = serializers.ChoiceField(
         choices=TermsAndConditionsChoices.choices,
-        required=True,
-        help_text="Document type to download.",
+        required=True
     )
 
 
