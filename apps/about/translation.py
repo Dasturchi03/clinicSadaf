@@ -10,4 +10,4 @@ class ArticleTypeTranslation(TranslationOptions):
 
 @register(TermsAndConditions)
 class TermsAndConditionsTranslation(TranslationOptions):
-    fields = ('text')
+    fields = ('text', )
