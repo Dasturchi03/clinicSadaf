@@ -171,7 +171,7 @@ class MobileTermsConditionsView(APIView):
 class ContactsView(APIView):
 
     def get(self, request, *args, **kwargs):
-        obj = Contacts.objects.order_by("-created_at", "-text_id").first()
+        obj = Contacts.objects.order_by("-created_at", "-data_id").first()
 
         if not obj:
             raise Http404("Contacts not found!")
