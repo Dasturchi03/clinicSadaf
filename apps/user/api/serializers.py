@@ -1,12 +1,16 @@
 from datetime import datetime, time, timedelta
+import re
 
+from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from apps.client.models import Client, Client_Public_Phone
 from apps.specialization.models import Specialization
 from apps.user.api.nested_serializers import NestedDoctorSerializer
 from apps.user.models import (
@@ -20,19 +24,21 @@ from apps.user.models import (
 from apps.work.api.serializers import WorkSerializer
 
 
+def build_auth_tokens_for_user(user):
+    refresh = LoginSerializer.get_token(user)
+    access_token = refresh.access_token
+    token_exp_time = (
+        datetime.combine(datetime.today(), time(23, 59)) - timezone.now()
+    ).seconds / 60
+    access_token.set_exp(lifetime=timedelta(minutes=token_exp_time))
+    return {"refresh": str(refresh), "access": str(access_token)}
+
+
 class LoginSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super(TokenObtainPairSerializer, self).validate(attrs)
-        refresh = self.get_token(self.user)
-        new_token = refresh.access_token
-        token_exp_time = (
-            datetime.combine(datetime.today(), time(23, 59)) - timezone.now()
-        ).seconds / 60
-        new_token.set_exp(lifetime=timedelta(minutes=token_exp_time))
-        data["refresh"] = str(refresh)
-        data["access"] = str(new_token)
-
+        data.update(build_auth_tokens_for_user(self.user))
         return data
 
     @classmethod
@@ -47,6 +53,52 @@ class LoginSerializer(TokenObtainPairSerializer):
         token["user_image"] = str(user.user_image)
 
         return token
+
+
+class MobileOTPRequestSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+
+    def validate(self, attrs):
+        phone_pattern = re.compile(settings.PHONE_PATTERN)
+        phone_number = attrs["phone_number"].strip()
+        if not phone_pattern.match(phone_number):
+            raise ValidationError(
+                {"phone_number": _("Phone number pattern example: +998901234567")}
+            )
+
+        client_phone = (
+            Client_Public_Phone.objects.select_related("client", "client__client_user")
+            .filter(public_phone=phone_number, deleted=False, client__deleted=False)
+            .first()
+        )
+        if not client_phone or not client_phone.client:
+            raise ValidationError({"phone_number": _("Client with this phone number was not found")})
+
+        attrs["phone_number"] = phone_number
+        attrs["client"] = client_phone.client
+        return attrs
+
+
+class MobileOTPVerifySerializer(MobileOTPRequestSerializer):
+    otp_code = serializers.CharField(max_length=6)
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        client = attrs["client"]
+        user = getattr(client, "client_user", None)
+        otp_code = attrs["otp_code"].strip()
+
+        if not user:
+            raise ValidationError({"phone_number": _("Client account is not prepared for OTP login")})
+        if not user.user_auth_code:
+            raise ValidationError({"otp_code": _("OTP code was not requested")})
+        if user.user_code_period and timezone.now() > user.user_code_period:
+            raise ValidationError({"otp_code": _("OTP code has expired")})
+        if otp_code != str(user.user_auth_code):
+            raise ValidationError({"otp_code": _("Invalid OTP code")})
+
+        attrs["user"] = user
+        return attrs
 
 
 class ChoiceField(serializers.ChoiceField):

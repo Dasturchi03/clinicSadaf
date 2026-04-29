@@ -1,9 +1,16 @@
+from datetime import timedelta
+
+from django.conf import settings
 from django.apps import apps
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Prefetch, Q
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, action
 from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
@@ -14,12 +21,106 @@ from apps.core.pagination import BasePagination
 from apps.core.permissions import AccessPermissions
 from apps.user import filtersets
 from apps.user.api import serializers
-from apps.user.models import User, User_Type, UserSalary, UserSchedule
+from apps.user.models import User, User_Public_Phone, User_Type, UserSalary, UserSchedule
 from apps.user.permissions import UserPermissions
 
 
 class LoginView(TokenObtainPairView):
     serializer_class = serializers.LoginSerializer
+
+
+def _get_patient_user_type():
+    return User_Type.objects.filter(type_text__in=["Пациент", "Patient"]).first()
+
+
+def _get_patient_group():
+    return Group.objects.filter(name__in=["Пациент", "Patient"]).first()
+
+
+def _ensure_client_mobile_user(client, phone_number):
+    user = getattr(client, "client_user", None)
+    if user:
+        if phone_number and not user.user_public_phone.filter(public_phone=phone_number).exists():
+            User_Public_Phone.objects.create(user=user, public_phone=phone_number)
+        return user
+
+    patient_user_type = _get_patient_user_type()
+    username = f"client.otp.{client.client_id:07d}"
+    user = User.objects.create_user(
+        username=username,
+        password=None,
+        user_type=patient_user_type,
+        user_firstname=client.client_firstname,
+        user_lastname=client.client_lastname,
+        user_father_name=client.client_father_name,
+        user_birthdate=client.client_birthdate,
+        user_gender=client.client_gender,
+        user_address=client.client_address,
+        user_citizenship=client.client_citizenship,
+        user_telegram=client.client_telegram,
+        is_active=True,
+        user_is_active=True,
+    )
+    patient_group = _get_patient_group()
+    if patient_group:
+        user.groups.add(patient_group)
+    if phone_number:
+        User_Public_Phone.objects.create(user=user, public_phone=phone_number)
+    client.client_user = user
+    client.save(update_fields=["client_user"])
+    return user
+
+
+@extend_schema(tags=["mobile_auth"])
+class MobileOTPRequestView(GenericAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = serializers.MobileOTPRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        client = serializer.validated_data["client"]
+        phone_number = serializer.validated_data["phone_number"]
+        user = _ensure_client_mobile_user(client, phone_number)
+        user.user_auth_code = settings.MOBILE_OTP_TEST_CODE
+        user.user_code_period = timezone.now() + timedelta(
+            minutes=settings.MOBILE_OTP_EXPIRE_MINUTES
+        )
+        user.user_is_active = True
+        user.save(update_fields=["user_auth_code", "user_code_period", "user_is_active"])
+        return Response(
+            {
+                "message": _("OTP code has been prepared"),
+                "phone_number": phone_number,
+                "expires_in_minutes": settings.MOBILE_OTP_EXPIRE_MINUTES,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+@extend_schema(tags=["mobile_auth"])
+class MobileOTPVerifyView(GenericAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = serializers.MobileOTPVerifySerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        user.user_auth_code = None
+        user.user_code_period = None
+        user.user_is_active = True
+        user.save(update_fields=["user_auth_code", "user_code_period", "user_is_active"])
+        response_data = serializers.build_auth_tokens_for_user(user)
+        response_data.update(
+            {
+                "user_id": user.id,
+                "client_id": user.client_user.client_id if getattr(user, "client_user", None) else None,
+                "username": user.username,
+                "user_fullname": f"{user.user_firstname} {user.user_lastname}".strip(),
+            }
+        )
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class UserViewSet(BaseViewSet):

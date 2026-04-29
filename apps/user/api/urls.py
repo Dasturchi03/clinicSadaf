@@ -10,6 +10,8 @@ router = BaseRouter(trailing_slash=False)
 router.register("users", views.UserViewSet, basename="users")
 
 urlpatterns = [
+    path('mobile/auth/otp/request', views.MobileOTPRequestView.as_view(), name='mobile_otp_request'),
+    path('mobile/auth/otp/verify', views.MobileOTPVerifyView.as_view(), name='mobile_otp_verify'),
     path('users/doctors', views.DoctorsApiView.as_view(), name='doctors_list'),
     path('users/brief/list', views.UserBriefListView.as_view(), name='user_brief_list'),
     path('users/schedule/list', views.UserSchduleListView.as_view(), name='user_schedule_list'),
