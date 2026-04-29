@@ -11,6 +11,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.client.models import Client, Client_Public_Phone
+from apps.core.choices import GenderTypes
+from apps.core.countries import COUNTRIES
 from apps.specialization.models import Specialization
 from apps.user.api.nested_serializers import NestedDoctorSerializer
 from apps.user.models import (
@@ -58,13 +60,17 @@ class LoginSerializer(TokenObtainPairSerializer):
 class MobileOTPRequestSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
 
-    def validate(self, attrs):
+    def validate_phone_number(self, phone_number):
         phone_pattern = re.compile(settings.PHONE_PATTERN)
-        phone_number = attrs["phone_number"].strip()
+        phone_number = phone_number.strip()
         if not phone_pattern.match(phone_number):
             raise ValidationError(
                 {"phone_number": _("Phone number pattern example: +998901234567")}
             )
+        return phone_number
+
+    def validate(self, attrs):
+        phone_number = self.validate_phone_number(attrs["phone_number"])
 
         client_phone = (
             Client_Public_Phone.objects.select_related("client", "client__client_user")
@@ -98,6 +104,72 @@ class MobileOTPVerifySerializer(MobileOTPRequestSerializer):
             raise ValidationError({"otp_code": _("Invalid OTP code")})
 
         attrs["user"] = user
+        return attrs
+
+
+class MobileOTPRegisterRequestSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+
+    def validate(self, attrs):
+        phone_number = MobileOTPRequestSerializer().validate_phone_number(
+            attrs["phone_number"]
+        )
+        existing_client_phone = Client_Public_Phone.objects.filter(
+            public_phone=phone_number, deleted=False, client__deleted=False
+        ).first()
+        if existing_client_phone:
+            raise ValidationError(
+                {"phone_number": _("Client with this phone number already exists. Use OTP login")}
+            )
+
+        pending_phone = User_Public_Phone.objects.select_related("user").filter(
+            public_phone=phone_number, deleted=False
+        ).first()
+        attrs["phone_number"] = phone_number
+        attrs["pending_user"] = pending_phone.user if pending_phone else None
+        return attrs
+
+
+class MobileOTPRegisterVerifySerializer(MobileOTPRegisterRequestSerializer):
+    otp_code = serializers.CharField(max_length=6)
+    client_firstname = serializers.CharField(max_length=50)
+    client_lastname = serializers.CharField(max_length=50)
+    client_father_name = serializers.CharField(
+        max_length=50, required=False, allow_blank=True, allow_null=True
+    )
+    client_birthdate = serializers.DateField(
+        format="%d-%m-%Y", input_formats=["%d-%m-%Y"]
+    )
+    client_gender = serializers.ChoiceField(choices=GenderTypes.choices)
+    client_citizenship = serializers.ChoiceField(choices=COUNTRIES)
+    client_address = serializers.CharField(
+        max_length=255, required=False, allow_blank=True, allow_null=True
+    )
+    client_telegram = serializers.CharField(
+        max_length=50, required=False, allow_blank=True, allow_null=True
+    )
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        phone_number = attrs["phone_number"]
+        otp_code = attrs["otp_code"].strip()
+        user = attrs["pending_user"]
+
+        if not user:
+            raise ValidationError({"phone_number": _("OTP code was not requested")})
+        if Client.objects.filter(client_user=user, deleted=False).exists():
+            raise ValidationError(
+                {"phone_number": _("Client with this phone number already exists. Use OTP login")}
+            )
+        if not user.user_auth_code:
+            raise ValidationError({"otp_code": _("OTP code was not requested")})
+        if user.user_code_period and timezone.now() > user.user_code_period:
+            raise ValidationError({"otp_code": _("OTP code has expired")})
+        if otp_code != str(user.user_auth_code):
+            raise ValidationError({"otp_code": _("Invalid OTP code")})
+
+        attrs["user"] = user
+        attrs["phone_number"] = phone_number
         return attrs
 
 
