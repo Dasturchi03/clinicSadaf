@@ -16,14 +16,14 @@ mobile_router.register("vacancies", views.VacancyPublicViewSet, basename="mobile
 
 urlpatterns = router.urls + [
     path(
-        "mobile/",
-        include(mobile_router.urls),
-    ),
-
-    path(
         "mobile/vacancies/apply",
         views.VacancyApplicationCreateView.as_view(),
         name="mobile-vacancy-apply",
+    ),
+
+    path(
+        "mobile/",
+        include(mobile_router.urls),
     ),
 
     path(
